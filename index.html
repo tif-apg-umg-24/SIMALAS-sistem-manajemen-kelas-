@@ -6,7 +6,7 @@
 <title>SIMALAS - Sistem Manajemen Kelas</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 <style>
-  /* ---------- CORE THEME (keaslian & styling preserved) ---------- */
+  /* ---------- CORE THEME ---------- */
   *{box-sizing:border-box;margin:0;padding:0}
   :root{
     --primary:#2563eb;--primary-dark:#1e40af;--secondary:#10b981;
@@ -19,7 +19,7 @@
   }
   .container{max-width:1400px;margin:0 auto;}
 
-  /* ---------- LOGIN OVERLAY (modern) ---------- */
+  /* ---------- LOGIN OVERLAY ---------- */
   #loginOverlay{
     position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
     background:linear-gradient(180deg,rgba(10,8,30,0.45),rgba(10,8,30,0.55));
@@ -37,98 +37,333 @@
   .login-body{padding:20px;background:white}
   .form-row{margin-bottom:12px}
   .form-row label{display:block;font-weight:600;color:var(--dark);margin-bottom:6px}
-  .form-row input{width:100%;padding:10px;border-radius:10px;border:2px solid var(--border)}
+  .form-row input{width:100%;padding:10px;border-radius:10px;border:2px solid var(--border);font-size:14px}
   .login-actions{display:flex;gap:10px;margin-top:10px}
-  .btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700}
+  .btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700;font-size:14px;transition:all .3s}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.15)}
   .btn-primary{background:var(--primary);color:white}
   .btn-light{background:var(--light);color:var(--dark);border:1px solid var(--border)}
   .small-actions{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
   .small-link{color:#64748b;font-size:.9rem;cursor:pointer;text-decoration:underline}
-  .error-text{color:var(--danger);margin-top:8px;font-weight:700;display:none}
+  .error-text{color:var(--danger);margin-top:8px;font-weight:700;display:none;font-size:14px}
 
   @keyframes slideUp{from{transform:translateY(18px);opacity:0}to{transform:none;opacity:1}}
 
-  /* ---------- APP (original) ---------- */
-  .header{background:white;padding:25px 30px;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.1);margin-bottom:30px;display:flex;justify-content:space-between;align-items:center}
+  /* ---------- HEADER ---------- */
+  .header{
+    background:white;padding:20px;border-radius:15px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.1);margin-bottom:20px;
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;
+  }
   .logo{display:flex;align-items:center;gap:15px}
-  .logo i{font-size:2.5rem;color:var(--primary)}
-  .logo-text h1{font-size:1.8rem;color:var(--dark);margin-bottom:5px}
-  .logo-text p{color:#64748b;font-size:0.9rem}
-  .user-info{display:flex;align-items:center;gap:15px}
-  .user-avatar{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:white;font-size:1.2rem;font-weight:bold}
-  .user-details h3{font-size:1rem;color:var(--dark)}
-  .user-details p{font-size:0.85rem;color:#64748b}
+  .logo i{font-size:2rem;color:var(--primary)}
+  .logo-text h1{font-size:1.5rem;color:var(--dark);margin-bottom:5px}
+  .logo-text p{color:#64748b;font-size:0.85rem}
+  .user-info{display:flex;align-items:center;gap:12px}
+  .user-avatar{
+    width:45px;height:45px;border-radius:50%;
+    background:linear-gradient(135deg,var(--primary),var(--secondary));
+    display:flex;align-items:center;justify-content:center;color:white;
+    font-size:1rem;font-weight:bold;flex-shrink:0;
+  }
+  .user-details h3{font-size:0.95rem;color:var(--dark)}
+  .user-details p{font-size:0.8rem;color:#64748b}
 
-  .nav-tabs{background:white;padding:15px;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.1);margin-bottom:30px;display:flex;gap:10px;overflow-x:auto}
-  .nav-tab{padding:12px 25px;border:none;background:transparent;color:#64748b;font-size:0.95rem;font-weight:600;cursor:pointer;border-radius:10px;transition:all .3s;white-space:nowrap}
+  /* ---------- NAVIGATION ---------- */
+  .nav-tabs{
+    background:white;padding:12px;border-radius:15px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.1);margin-bottom:20px;
+    display:flex;gap:8px;overflow-x:auto;
+    scrollbar-width:thin;scrollbar-color:var(--primary) var(--light);
+  }
+  .nav-tabs::-webkit-scrollbar{height:6px}
+  .nav-tabs::-webkit-scrollbar-track{background:var(--light);border-radius:10px}
+  .nav-tabs::-webkit-scrollbar-thumb{background:var(--primary);border-radius:10px}
+  .nav-tab{
+    padding:10px 18px;border:none;background:transparent;color:#64748b;
+    font-size:0.9rem;font-weight:600;cursor:pointer;border-radius:10px;
+    transition:all .3s;white-space:nowrap;flex-shrink:0;
+  }
   .nav-tab:hover{background:var(--light);color:var(--primary)}
   .nav-tab.active{background:var(--primary);color:white}
-  .nav-tab i{margin-right:8px}
+  .nav-tab i{margin-right:6px}
 
-  .dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:25px;margin-bottom:30px}
-  .stat-card{background:white;padding:25px;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.1);position:relative;overflow:hidden}
-  .stat-card::before{content:'';position:absolute;top:0;right:0;width:100px;height:100px;background:var(--primary);opacity:0.1;border-radius:0 0 0 100%}
-  .stat-icon{width:60px;height:60px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin-bottom:15px;color:white}
+  /* ---------- DASHBOARD STATS ---------- */
+  .dashboard-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:20px;margin-bottom:25px;
+  }
+  .stat-card{
+    background:white;padding:20px;border-radius:15px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.1);position:relative;overflow:hidden;
+  }
+  .stat-card::before{
+    content:'';position:absolute;top:0;right:0;width:100px;height:100px;
+    background:var(--primary);opacity:0.1;border-radius:0 0 0 100%;
+  }
+  .stat-icon{
+    width:50px;height:50px;border-radius:12px;display:flex;
+    align-items:center;justify-content:center;font-size:1.5rem;
+    margin-bottom:12px;color:white;
+  }
   .stat-card:nth-child(1) .stat-icon{background:linear-gradient(135deg,#667eea,#764ba2)}
   .stat-card:nth-child(2) .stat-icon{background:linear-gradient(135deg,#f093fb,#f5576c)}
   .stat-card:nth-child(3) .stat-icon{background:linear-gradient(135deg,#4facfe,#00f2fe)}
   .stat-card:nth-child(4) .stat-icon{background:linear-gradient(135deg,#43e97b,#38f9d7)}
-  .stat-value{font-size:2rem;font-weight:bold;color:var(--dark);margin-bottom:5px}
-  .stat-label{color:#64748b;font-size:0.9rem}
+  .stat-value{font-size:1.8rem;font-weight:bold;color:var(--dark);margin-bottom:5px}
+  .stat-label{color:#64748b;font-size:0.85rem}
 
+  /* ---------- CONTENT SECTIONS ---------- */
   .content-section{display:none;animation:fadeIn .3s}
   .content-section.active{display:block}
   @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-  .content-grid{display:grid;grid-template-columns:2fr 1fr;gap:25px}
-  .card{background:white;padding:25px;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.1)}
-  .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid var(--border)}
-  .card-title{font-size:1.3rem;color:var(--dark);font-weight:600}
-  .btn-sm{padding:6px 12px;font-size:0.85rem}
-  .btn-primary{background:var(--primary);color:white;border-radius:10px;padding:10px 14px;border:0;cursor:pointer}
-  .btn-danger{background:var(--danger);color:white;border-radius:10px;padding:10px 14px;border:0;cursor:pointer}
-  .btn-success{background:var(--secondary);color:white;border-radius:10px;padding:10px 14px;border:0;cursor:pointer}
-  .material-list{display:flex;flex-direction:column;gap:15px}
-  .material-item{padding:18px;border:2px solid var(--border);border-radius:12px;display:flex;align-items:center;gap:15px;transition:all .3s}
-  .material-item:hover{border-color:var(--primary);background:var(--light);transform:translateX(5px)}
-  .material-icon{width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:white}
+  .content-grid{display:grid;grid-template-columns:1fr;gap:20px}
+  
+  .card{
+    background:white;padding:20px;border-radius:15px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.1);
+  }
+  .card-header{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid var(--border);
+    flex-wrap:wrap;gap:10px;
+  }
+  .card-title{font-size:1.2rem;color:var(--dark);font-weight:600}
+  .btn-sm{padding:8px 14px;font-size:0.85rem}
+  .btn-danger{background:var(--danger);color:white}
+  .btn-success{background:var(--secondary);color:white}
+
+  /* ---------- MATERIALS ---------- */
+  .material-list{display:flex;flex-direction:column;gap:12px}
+  .material-item{
+    padding:15px;border:2px solid var(--border);border-radius:12px;
+    display:flex;align-items:center;gap:12px;transition:all .3s;flex-wrap:wrap;
+  }
+  .material-item:hover{border-color:var(--primary);background:var(--light)}
+  .material-icon{
+    width:45px;height:45px;border-radius:10px;display:flex;
+    align-items:center;justify-content:center;font-size:1.3rem;
+    color:white;flex-shrink:0;
+  }
   .material-icon.pdf{background:linear-gradient(135deg,#ef4444,#dc2626)}
   .material-icon.doc{background:linear-gradient(135deg,#3b82f6,#2563eb)}
   .material-icon.ppt{background:linear-gradient(135deg,#f59e0b,#d97706)}
-  .material-info{flex:1}
-  .material-title{font-weight:600;color:var(--dark);margin-bottom:5px}
-  .material-meta{font-size:0.85rem;color:#64748b}
+  .material-info{flex:1;min-width:150px}
+  .material-title{font-weight:600;color:var(--dark);margin-bottom:5px;font-size:0.95rem}
+  .material-meta{font-size:0.8rem;color:#64748b}
+  .material-actions{display:flex;gap:8px;flex-shrink:0}
 
-  .task-list{display:flex;flex-direction:column;gap:15px}
-  .task-item{padding:18px;border:2px solid var(--border);border-radius:12px;transition:all .3s}
+  /* ---------- TASKS ---------- */
+  .task-list{display:flex;flex-direction:column;gap:12px}
+  .task-item{
+    padding:15px;border:2px solid var(--border);border-radius:12px;
+    transition:all .3s;
+  }
   .task-item.completed{background:#f0fdf4;border-color:var(--secondary)}
-  .task-header{display:flex;justify-content:space-between;align-items:start;margin-bottom:12px}
-  .task-checkbox{width:24px;height:24px;cursor:pointer}
-  .task-title{font-weight:600;color:var(--dark);margin-bottom:8px}
-  .task-deadline{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#fef3c7;color:#92400e;border-radius:8px;font-size:0.85rem;font-weight:600}
+  .task-header{
+    display:flex;justify-content:space-between;align-items:start;
+    margin-bottom:10px;gap:10px;flex-wrap:wrap;
+  }
+  .task-checkbox{width:22px;height:22px;cursor:pointer;flex-shrink:0}
+  .task-title{font-weight:600;color:var(--dark);margin-bottom:6px;font-size:0.95rem}
+  .task-deadline{
+    display:inline-flex;align-items:center;gap:6px;padding:6px 12px;
+    background:#fef3c7;color:#92400e;border-radius:8px;
+    font-size:0.8rem;font-weight:600;white-space:nowrap;
+  }
   .task-deadline.urgent{background:#fee2e2;color:#991b1b}
   .task-deadline.completed{background:#d1fae5;color:#065f46}
-  .kas-list{display:flex;flex-direction:column;gap:12px}
-  .kas-item{display:flex;justify-content:space-between;align-items:center;padding:15px;border:2px solid var(--border);border-radius:10px;transition:all .3s}
+
+  /* ---------- KAS ---------- */
+  .kas-list{display:flex;flex-direction:column;gap:10px}
+  .kas-item{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px;border:2px solid var(--border);border-radius:10px;
+    transition:all .3s;gap:10px;flex-wrap:wrap;
+  }
   .kas-item:hover{border-color:var(--primary)}
-  .kas-name{font-weight:600;color:var(--dark)}
-  .kas-status{padding:6px 16px;border-radius:20px;font-size:0.85rem;font-weight:600}
+  .kas-name{font-weight:600;color:var(--dark);font-size:0.9rem;flex:1;min-width:150px}
+  .kas-status{
+    padding:6px 14px;border-radius:20px;font-size:0.8rem;
+    font-weight:600;flex-shrink:0;
+  }
   .kas-status.paid{background:#d1fae5;color:#065f46}
   .kas-status.unpaid{background:#fee2e2;color:#991b1b}
-  .upcoming-task{padding:15px;background:var(--light);border-radius:10px;margin-bottom:12px;border-left:4px solid var(--warning)}
-  .upcoming-task-title{font-weight:600;color:var(--dark);margin-bottom:6px}
-  .upcoming-task-time{font-size:0.85rem;color:#64748b}
 
-  .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:2000;align-items:center;justify-content:center}
+  .upcoming-task{
+    padding:12px;background:var(--light);border-radius:10px;
+    margin-bottom:10px;border-left:4px solid var(--warning);
+  }
+  .upcoming-task-title{font-weight:600;color:var(--dark);margin-bottom:5px;font-size:0.9rem}
+  .upcoming-task-time{font-size:0.8rem;color:#64748b}
+
+  /* ---------- MODALS ---------- */
+  .modal{
+    display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+    background:rgba(0,0,0,0.5);z-index:2000;align-items:center;
+    justify-content:center;padding:15px;
+  }
   .modal.active{display:flex}
-  .modal-content{background:white;padding:30px;border-radius:15px;max-width:520px;width:92%;animation:slideUp .3s}
-  .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-  .modal-title{font-size:1.5rem;color:var(--dark)}
-  .close-modal{font-size:1.2rem;cursor:pointer;color:#64748b;border:none;background:none}
-  .form-group{margin-bottom:16px}
-  .form-label{display:block;margin-bottom:8px;color:var(--dark);font-weight:600}
-  .form-control{width:100%;padding:10px;border:2px solid var(--border);border-radius:10px}
-  @media (max-width:768px){.content-grid{grid-template-columns:1fr}.header{flex-direction:column;gap:15px;text-align:center}.nav-tabs{flex-direction:column}}
+  .modal-content{
+    background:white;padding:25px;border-radius:15px;
+    max-width:520px;width:100%;animation:slideUp .3s;
+    max-height:90vh;overflow-y:auto;
+  }
+  .modal-header{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:20px;gap:10px;
+  }
+  .modal-title{font-size:1.3rem;color:var(--dark)}
+  .close-modal{
+    font-size:1.2rem;cursor:pointer;color:#64748b;
+    border:none;background:none;padding:5px;
+  }
+  .form-group{margin-bottom:14px}
+  .form-label{display:block;margin-bottom:8px;color:var(--dark);font-weight:600;font-size:0.9rem}
+  .form-control{
+    width:100%;padding:10px;border:2px solid var(--border);
+    border-radius:10px;font-size:14px;
+  }
+
+  /* ---------- RESPONSIVE DESIGN ---------- */
+  
+  /* Tablet (768px and below) */
+  @media (max-width:768px){
+    body{padding:12px}
+    
+    .header{
+      padding:15px;text-align:center;
+      justify-content:center;
+    }
+    
+    .logo{flex-direction:column;gap:10px;width:100%}
+    .logo i{font-size:2.5rem}
+    .logo-text h1{font-size:1.3rem}
+    
+    .user-info{width:100%;justify-content:center;margin-top:10px}
+    .user-avatar{width:40px;height:40px;font-size:0.95rem}
+    .user-details h3{font-size:0.9rem}
+    .user-details p{font-size:0.75rem}
+    
+    .dashboard-grid{
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:15px;
+    }
+    
+    .stat-icon{width:45px;height:45px;font-size:1.3rem}
+    .stat-value{font-size:1.5rem}
+    .stat-label{font-size:0.8rem}
+    
+    .content-grid{grid-template-columns:1fr;gap:15px}
+    
+    .card{padding:15px}
+    .card-header{flex-direction:column;align-items:flex-start}
+    .card-title{font-size:1.1rem}
+    
+    .material-item{padding:12px;gap:10px}
+    .material-icon{width:40px;height:40px;font-size:1.2rem}
+    .material-title{font-size:0.9rem}
+    .material-meta{font-size:0.75rem}
+    
+    .task-item{padding:12px}
+    .task-header{flex-direction:column;align-items:flex-start}
+    .task-title{font-size:0.9rem}
+    
+    .modal-content{padding:20px;max-height:85vh}
+    .modal-title{font-size:1.2rem}
+    
+    .nav-tab{padding:10px 14px;font-size:0.85rem}
+    .nav-tab i{margin-right:4px}
+  }
+  
+  /* Mobile (480px and below) */
+  @media (max-width:480px){
+    body{padding:8px}
+    
+    .login-card{width:100%;margin:10px}
+    .login-header{padding:18px}
+    .login-header h1{font-size:1.1rem}
+    .login-body{padding:15px}
+    
+    .header{padding:12px;border-radius:12px;margin-bottom:12px}
+    
+    .logo i{font-size:2rem}
+    .logo-text h1{font-size:1.2rem}
+    .logo-text p{font-size:0.8rem}
+    
+    .user-avatar{width:38px;height:38px;font-size:0.9rem}
+    .user-details h3{font-size:0.85rem}
+    .user-details p{font-size:0.7rem}
+    
+    .nav-tabs{padding:10px;gap:6px;border-radius:12px;margin-bottom:12px}
+    .nav-tab{padding:8px 12px;font-size:0.8rem;border-radius:8px}
+    
+    .dashboard-grid{
+      grid-template-columns:1fr;gap:12px;margin-bottom:15px;
+    }
+    
+    .stat-card{padding:15px;border-radius:12px}
+    .stat-icon{width:40px;height:40px;font-size:1.2rem;margin-bottom:10px}
+    .stat-value{font-size:1.4rem}
+    .stat-label{font-size:0.75rem}
+    
+    .card{padding:12px;border-radius:12px}
+    .card-header{padding-bottom:12px;margin-bottom:15px}
+    .card-title{font-size:1rem}
+    
+    .btn{padding:8px 12px;font-size:0.85rem}
+    .btn-sm{padding:6px 10px;font-size:0.8rem}
+    
+    .material-list{gap:10px}
+    .material-item{
+      padding:10px;border-radius:10px;
+      flex-direction:column;align-items:flex-start;
+    }
+    .material-icon{width:38px;height:38px;font-size:1.1rem}
+    .material-info{width:100%}
+    .material-title{font-size:0.85rem}
+    .material-meta{font-size:0.7rem}
+    .material-actions{width:100%;justify-content:flex-end}
+    
+    .task-list{gap:10px}
+    .task-item{padding:10px;border-radius:10px}
+    .task-checkbox{width:20px;height:20px}
+    .task-title{font-size:0.85rem}
+    .task-deadline{font-size:0.75rem;padding:5px 10px}
+    
+    .kas-item{padding:10px;border-radius:8px}
+    .kas-name{font-size:0.85rem;width:100%}
+    .kas-status{font-size:0.75rem;padding:5px 12px;width:100%;text-align:center}
+    
+    .upcoming-task{padding:10px;margin-bottom:8px}
+    .upcoming-task-title{font-size:0.85rem}
+    .upcoming-task-time{font-size:0.75rem}
+    
+    .modal-content{padding:15px;border-radius:12px;max-height:80vh}
+    .modal-header{margin-bottom:15px}
+    .modal-title{font-size:1.1rem}
+    .form-group{margin-bottom:12px}
+    .form-label{font-size:0.85rem;margin-bottom:6px}
+    .form-control{padding:8px;font-size:13px}
+  }
+  
+  /* Desktop large (1200px and above) */
+  @media (min-width:1200px){
+    .content-grid{grid-template-columns:2fr 1fr}
+    
+    .dashboard-grid{
+      grid-template-columns:repeat(4,1fr);
+    }
+  }
+  
+  /* Extra small devices (360px and below) */
+  @media (max-width:360px){
+    .logo-text h1{font-size:1.1rem}
+    .nav-tab{padding:8px 10px;font-size:0.75rem}
+    .stat-value{font-size:1.3rem}
+    .card-title{font-size:0.95rem}
+  }
 </style>
 </head>
 <body>
@@ -182,10 +417,10 @@
 
   <div class="nav-tabs" id="nav">
     <button class="nav-tab active" onclick="showSection('dashboard')"><i class="fas fa-home"></i> Dashboard</button>
-    <button class="nav-tab" onclick="showSection('materi')"><i class="fas fa-book"></i> Materi Kuliah</button>
+    <button class="nav-tab" onclick="showSection('materi')"><i class="fas fa-book"></i> Materi</button>
     <button class="nav-tab" onclick="showSection('tugas')"><i class="fas fa-tasks"></i> Tugas</button>
-    <button class="nav-tab" onclick="showSection('kas')"><i class="fas fa-wallet"></i> Kas Kelas</button>
-    <button class="nav-tab" id="tabChangePass" style="display:none" onclick="openModal('modalChangePass')"><i class="fas fa-key"></i> Ubah Password</button>
+    <button class="nav-tab" onclick="showSection('kas')"><i class="fas fa-wallet"></i> Kas</button>
+    <button class="nav-tab" id="tabChangePass" style="display:none" onclick="openModal('modalChangePass')"><i class="fas fa-key"></i> Password</button>
     <button class="nav-tab" id="tabLogout" style="display:none" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
   </div>
 
@@ -203,7 +438,7 @@
         <div class="card-header">
           <h2 class="card-title">Materi Terbaru</h2>
           <div>
-            <button id="btnTopUpload" class="btn btn-primary btn-sm" onclick="openModal('modalUpload')" style="display:none"><i class="fas fa-plus"></i> Upload Materi</button>
+            <button id="btnTopUpload" class="btn btn-primary btn-sm" onclick="openModal('modalUpload')" style="display:none"><i class="fas fa-plus"></i> Upload</button>
           </div>
         </div>
         <div class="material-list" id="materiPreview"></div>
@@ -221,7 +456,7 @@
     <div class="card">
       <div class="card-header">
         <h2 class="card-title">Materi Kuliah</h2>
-        <div><button id="btnUploadPage" class="btn btn-primary" onclick="openModal('modalUpload')" style="display:none"><i class="fas fa-plus"></i> Upload Materi</button></div>
+        <div><button id="btnUploadPage" class="btn btn-primary btn-sm" onclick="openModal('modalUpload')" style="display:none"><i class="fas fa-plus"></i> Upload</button></div>
       </div>
       <div class="material-list" id="materiList"></div>
     </div>
@@ -232,7 +467,7 @@
     <div class="card">
       <div class="card-header">
         <h2 class="card-title">Daftar Tugas</h2>
-        <div><button id="btnAddTugas" class="btn btn-primary" onclick="openModal('modalAddTugas')" style="display:none"><i class="fas fa-plus"></i> Tambah Tugas</button></div>
+        <div><button id="btnAddTugas" class="btn btn-primary btn-sm" onclick="openModal('modalAddTugas')" style="display:none"><i class="fas fa-plus"></i> Tambah</button></div>
       </div>
       <div class="task-list" id="tugasList"></div>
     </div>
@@ -242,8 +477,11 @@
   <div id="kas" class="content-section">
     <div class="card">
       <div class="card-header">
-        <h2 class="card-title">Kas Kelas - Oktober 2025</h2>
-        <div><button class="btn btn-success" onclick="exportKas()"><i class="fas fa-download"></i> Export Excel</button></div>
+        <h2 class="card-title">Kas Kelas</h2>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-success btn-sm" onclick="exportKas()"><i class="fas fa-download"></i> Export</button>
+          <button id="btnAddKas" class="btn btn-primary btn-sm" style="display:none" onclick="openModal('modalAddKas')"><i class="fas fa-plus"></i> Tambah Nama Kas</button>
+        </div>
       </div>
       <div class="kas-list" id="kasList"></div>
     </div>
@@ -282,9 +520,16 @@
   </form>
 </div></div>
 
+<div id="modalAddKas" class="modal"><div class="modal-content">
+  <div class="modal-header"><h3 class="modal-title">Tambah Nama Kas</h3><button class="close-modal" onclick="closeModal('modalAddKas')"><i class="fas fa-times"></i></button></div>
+  <form id="formAddKas" onsubmit="handleAddKas(event)">
+    <div class="form-group"><label class="form-label">Nama</label><input class="form-control" name="name" required></div>
+    <div style="display:flex;gap:8px"><button type="submit" class="btn btn-primary" style="flex:1">Tambah</button><button type="button" class="btn btn-light" style="flex:1" onclick="closeModal('modalAddKas')">Batal</button></div>
+  </form>
+</div></div>
+
 <script>
 /* ================== APP LOGIC ================== */
-/* seed user list (from your list). Ketua=240602010, Bendahara=240602009 */
 const seedNames = {
   "240602002":"AISYAH GRISSEETA AZ-ZAHRA","240602004":"MUHAMMAD NUR ZAKARIA","240602005":"ARIF FATHUR ROHMAN",
   "240602009":"FEBRY WULANDARI","240602010":"MUHAMMAD VIGAR SEPTIANTA PRATAMA","240602011":"ACHMAD BACHTIAR PRIMADANI",
@@ -302,7 +547,6 @@ const ROLE_KETUA = 'ketua';
 const ROLE_BENDAHARA = 'bendahara';
 const ROLE_MAHASISWA = 'mahasiswa';
 
-/* default seed data for materials, tasks, kas */
 const DEFAULT_MATERIALS = [
   {id:1,title:'Algoritma dan Pemrograman - Bab 5',type:'pdf',size:'2.4 MB',date:'2 hari yang lalu',filename:null},
   {id:2,title:'Basis Data - Normalisasi',type:'ppt',size:'5.1 MB',date:'4 hari yang lalu',filename:null},
@@ -316,7 +560,7 @@ const DEFAULT_TASKS = [
   {id:4,title:'Quiz Jaringan Komputer',course:'Jarkom',deadline:'2025-10-12T10:00'}
 ];
 const DEFAULT_KAS = [
-  {id:1,name:'Ahmad Fauzi',paid:true},{id:2,name:'Budi Santoso',paid:true},{id:3,name:'Citra Dewi',paid:false},
+  {id:1,name:'Ahmad',paid:true},{id:2,name:'Budi Santoso',paid:true},{id:3,name:'Citra Dewi',paid:false},
   {id:4,name:'Dian Purnama',paid:true},{id:5,name:'Eka Wijaya',paid:false},{id:6,name:'Farah Nabila',paid:true}
 ];
 
@@ -360,18 +604,12 @@ function saveKas(k){ localStorage.setItem('simalas_kas', JSON.stringify(k)) }
 const loginOverlay = document.getElementById('loginOverlay');
 const btnLogin = document.getElementById('btnLogin');
 const btnReset = document.getElementById('btnReset');
-const demoLogin = document.getElementById('demoLogin');
 const loginError = document.getElementById('loginError');
 const loginNIM = document.getElementById('loginNIM');
 const loginPass = document.getElementById('loginPass');
 
 /* ---------- AUTH (login) ---------- */
 btnLogin.addEventListener('click', doLogin);
-demoLogin.addEventListener('click', ()=> {
-  loginNIM.value = '240602002';
-  loginPass.value = 'mahasiswa123';
-  doLogin();
-});
 btnReset.addEventListener('click', ()=> {
   if(!confirm('Reset semua data (users, materials, tasks, kas) ke kondisi awal?')) return;
   localStorage.removeItem('simalas_users'); localStorage.removeItem('simalas_materials'); localStorage.removeItem('simalas_tasks');
@@ -389,51 +627,46 @@ function doLogin(){
   const user = users[nim];
   if(!user){ loginError.innerText='NIM tidak terdaftar.'; loginError.style.display='block'; return; }
   if(user.password !== pass){ loginError.innerText='NIM atau password salah.'; loginError.style.display='block'; return; }
-  // success
   setCurrentUser(nim);
   onLogin();
 }
 
-/* ---------- ON LOGIN - setup UI according role ---------- */
+/* ---------- ON LOGIN ---------- */
 function onLogin(){
   const cur = getCurrent();
   if(!cur) return;
-  // hide overlay
   loginOverlay.style.display='none';
   document.body.classList.add('logged-in');
 
-  // header
   const displayRole = document.getElementById('displayRole');
   const displayUser = document.getElementById('displayUser');
   displayRole.innerText = (cur.role===ROLE_KETUA ? 'Ketua Kelas - ' : cur.role===ROLE_BENDAHARA ? 'Bendahara - ' : 'Mahasiswa - ') + cur.name;
   displayUser.innerText = 'NIM: ' + cur.nim;
   const avatar = document.getElementById('displayAvatar');
   avatar.innerText = cur.name ? cur.name.split(' ').map(x=>x[0]).slice(0,2).join('') : '';
-  // nav items
+  
   const isAdmin = (cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA);
   document.getElementById('tabChangePass').style.display = isAdmin ? 'inline-block' : 'none';
   document.getElementById('tabLogout').style.display = 'inline-block';
   document.getElementById('btnTopUpload').style.display = isAdmin ? 'inline-block' : 'none';
   document.getElementById('btnUploadPage').style.display = isAdmin ? 'inline-block' : 'none';
   document.getElementById('btnAddTugas').style.display = isAdmin ? 'inline-block' : 'none';
+  document.getElementById('btnAddKas').style.display = isAdmin ? 'inline-block' : 'none';
 
-  // render
   renderMaterials(); renderTasks(); renderKas(); renderStats();
 }
 
-/* ---------- RENDERING FUNCTIONS ---------- */
+/* ---------- RENDERING ---------- */
 function showSection(id){
   document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   const section = document.getElementById(id);
   if(section) section.classList.add('active');
-  // set active nav by text matching (best effort)
   const navs = Array.from(document.querySelectorAll('.nav-tab'));
   const target = navs.find(n => n.textContent.trim().toLowerCase().includes(id));
   if(target){ target.classList.add('active'); } else { navs[0].classList.add('active'); }
 }
 
-/* Materials */
 function renderMaterials(){
   const mats = getMaterials();
   const preview = document.getElementById('materiPreview');
@@ -444,9 +677,9 @@ function renderMaterials(){
     <div class="material-item" data-id="${m.id}">
       <div class="material-icon ${m.type}"><i class="fas fa-file-${m.type==='pdf'?'pdf':m.type==='doc'?'word':'powerpoint'}"></i></div>
       <div class="material-info"><div class="material-title">${escapeHtml(m.title)}</div><div class="material-meta">Diupload ${m.date} • ${m.size}</div></div>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-primary btn-sm" onclick="downloadMaterial(${m.id})"><i class="fas fa-download"></i></button>
-        ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="confirmDeleteMaterial(${m.id})"><i class="fas fa-trash"></i></button>` : ''}
+      <div class="material-actions">
+        <button class="btn btn-primary btn-sm" onclick="downloadMaterial(${m.id})" title="Download"><i class="fas fa-download"></i></button>
+        ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="confirmDeleteMaterial(${m.id})" title="Hapus"><i class="fas fa-trash"></i></button>` : ''}
       </div>
     </div>
   `).join('');
@@ -454,7 +687,6 @@ function renderMaterials(){
   pageList.innerHTML = html;
 }
 
-/* Tasks */
 function renderTasks(){
   const tasks = getTasks();
   const status = getTaskStatus();
@@ -483,30 +715,34 @@ function renderTasks(){
     `;
   }).join('');
   list.innerHTML = html;
-  // upcoming
   const upcoming = document.getElementById('upcoming');
   const upHtml = tasks.slice(0,3).map(t => `<div class="upcoming-task"><div class="upcoming-task-title">${escapeHtml(t.title)}</div><div class="upcoming-task-time"><i class="fas fa-clock"></i> ${formatDeadline(new Date(t.deadline))}</div></div>`).join('');
   upcoming.innerHTML = upHtml;
 }
 
-/* Kas */
 function renderKas(){
   const ks = getKas();
   const list = document.getElementById('kasList');
   const cur = getCurrent();
   const isAdmin = cur && (cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA);
   const html = `
-    <div style="background:linear-gradient(135deg,var(--primary),var(--secondary));color:white;padding:25px;border-radius:12px;margin-bottom:20px">
+    <div style="background:linear-gradient(135deg,var(--primary),var(--secondary));color:white;padding:20px;border-radius:12px;margin-bottom:15px">
       <div style="font-size:.9rem;margin-bottom:10px">Status Pembayaran</div>
-      <div style="font-size:2rem;font-weight:bold;margin-bottom:5px">${ks.filter(k=>k.paid).length}/${ks.length} Mahasiswa</div>
+      <div style="font-size:1.8rem;font-weight:bold;margin-bottom:5px">${ks.filter(k=>k.paid).length}/${ks.length} Mahasiswa</div>
       <div style="font-size:.9rem">sudah membayar kas bulan ini</div>
     </div>
-    ${ks.map(k => `<div class="kas-item"><div class="kas-name"><i class="fas fa-user"></i> ${escapeHtml(k.name)}</div><span class="kas-status ${k.paid?'paid':'unpaid'}" ${isAdmin?`onclick="toggleKas(${k.id})" style="cursor:pointer"`:''}>${k.paid?'✓ Sudah Bayar':'✗ Belum Bayar'}</span></div>`).join('')}
+    ${ks.map(k => `<div class="kas-item" data-id="${k.id}">
+      <div style="display:flex;gap:8px;align-items:center;flex:1"><div class="kas-name"><i class="fas fa-user"></i> ${escapeHtml(k.name)}</div></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="kas-status ${k.paid?'paid':'unpaid'}" ${isAdmin?`onclick="toggleKas(${k.id})" style="cursor:pointer"`:''}>${k.paid?'✓ Sudah Bayar':'✗ Belum Bayar'}</span>
+        ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="confirmDeleteKas(${k.id})" title="Hapus nama"><i class="fas fa-trash"></i></button>` : ''}
+      </div>
+    </div>`).join('')}
   `;
   list.innerHTML = html;
 }
 
-/* Stats */
+/* ---------- STATS ---------- */
 function renderStats(){
   const mats = getMaterials();
   const tasks = getTasks();
@@ -530,14 +766,34 @@ function handleUpload(e){
   const title = form.title.value.trim();
   const file = form.file.files[0];
   if(!course || !title || !file){ alert('Lengkapi semua field'); return; }
-  const ext = file.name.split('.').pop().toLowerCase();
-  let type='doc'; if(ext==='pdf') type='pdf'; else if(ext.includes('ppt')) type='ppt';
-  const mats = getMaterials();
-  const size = (file.size/(1024*1024)).toFixed(1)+' MB';
-  mats.unshift({id:(mats.length?Math.max(...mats.map(m=>m.id)):0)+1, title, type, size, date:'Baru saja', filename:file.name});
-  saveMaterials(mats);
-  closeModal('modalUpload'); renderMaterials(); renderStats(); alert('Materi berhasil diupload (simulasi lokal).');
-  form.reset();
+  
+  // Read file as base64
+  const reader = new FileReader();
+  reader.onload = function(event){
+    const ext = file.name.split('.').pop().toLowerCase();
+    let type='doc'; if(ext==='pdf') type='pdf'; else if(ext.includes('ppt')) type='ppt';
+    const mats = getMaterials();
+    const size = (file.size/(1024*1024)).toFixed(1)+' MB';
+    
+    // Save file with base64 data
+    mats.unshift({
+      id:(mats.length?Math.max(...mats.map(m=>m.id)):0)+1, 
+      title: course + ' — ' + title, 
+      type, 
+      size, 
+      date:'Baru saja', 
+      filename:file.name,
+      fileData: event.target.result, // base64 data URL
+      mimeType: file.type
+    });
+    saveMaterials(mats);
+    closeModal('modalUpload'); 
+    renderMaterials(); 
+    renderStats(); 
+    alert('Materi berhasil diupload dan dapat didownload.');
+    form.reset();
+  };
+  reader.readAsDataURL(file);
 }
 
 function handleAddTugas(e){
@@ -556,7 +812,19 @@ function handleAddTugas(e){
   form.reset();
 }
 
-/* Toggle task completion per user */
+function handleAddKas(e){
+  e.preventDefault();
+  const cur = getCurrent();
+  if(!cur || !(cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
+  const form = e.target;
+  const name = form.name.value.trim();
+  if(!name){ alert('Masukkan nama'); return; }
+  const ks = getKas();
+  ks.unshift({id:(ks.length?Math.max(...ks.map(k=>k.id)):0)+1, name, paid:false});
+  saveKas(ks);
+  closeModal('modalAddKas'); renderKas(); renderStats(); form.reset();
+}
+
 function toggleTask(taskId){
   const cur = getCurrent();
   if(!cur){ alert('Silakan login'); return; }
@@ -567,7 +835,6 @@ function toggleTask(taskId){
   renderTasks(); renderStats();
 }
 
-/* Toggle kas (admin) */
 function toggleKas(id){
   const cur = getCurrent();
   if(!cur || !(cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
@@ -576,14 +843,24 @@ function toggleKas(id){
   if(idx>-1){ ks[idx].paid = !ks[idx].paid; saveKas(ks); renderKas(); renderStats(); }
 }
 
-/* Download material (simulate) */
+/* ---------- DOWNLOAD MATERIAL (real) ---------- */
 function downloadMaterial(id){
   const m = getMaterials().find(x=>x.id===id);
   if(!m) return alert('File tidak ditemukan');
-  alert('Simulasi download: ' + m.title + (m.filename?(' (file: '+m.filename+')'):''));
+  if(!m.fileData){
+    // No file stored (default items) -> inform user
+    return alert('File asli tidak tersedia untuk materi ini. Hanya materi yang diupload bisa didownload.');
+  }
+  // m.fileData is data URL (base64). Create link and click
+  const a = document.createElement('a');
+  a.href = m.fileData;
+  a.download = m.filename || (`${m.title.replace(/[^a-z0-9\-\_]/ig,'_')}`);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 }
 
-/* Delete confirmations */
+/* ---------- DELETE MATERIAL/TUGAS/KAS ---------- */
 function confirmDeleteMaterial(id){ if(confirm('Hapus materi ini?')) deleteMaterial(id); }
 function deleteMaterial(id){
   const cur = getCurrent(); if(!cur || !(cur.role===ROLE_KETUA||cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
@@ -596,8 +873,13 @@ function deleteTask(id){
   const status = getTaskStatus(); for(const k of Object.keys(status)){ if(k.startsWith(id+'_')) delete status[k]; } saveTaskStatus(status);
   renderTasks(); renderStats();
 }
+function confirmDeleteKas(id){ if(confirm('Hapus nama kas ini?')) deleteKas(id); }
+function deleteKas(id){
+  const cur = getCurrent(); if(!cur || !(cur.role===ROLE_KETUA||cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
+  const ks = getKas().filter(k=>k.id!==id); saveKas(ks); renderKas(); renderStats();
+}
 
-/* Change password (admin only) */
+/* ---------- CHANGE PASSWORD ---------- */
 function handleChangePass(e){
   e.preventDefault();
   const cur = getCurrent(); if(!cur) return alert('Silakan login');
@@ -609,15 +891,13 @@ function handleChangePass(e){
   const users = getUsers();
   if(users[cur.nim].password !== oldP) return alert('Password lama salah');
   users[cur.nim].password = newP; saveUsers(users); closeModal('modalChangePass'); alert('Password berhasil diubah');
-  // clear fields
   document.getElementById('oldPass').value=''; document.getElementById('newPass').value=''; document.getElementById('confPass').value='';
 }
 
-/* Logout */
+/* ---------- LOGOUT / EXPORT ---------- */
 function logout(){
   if(!confirm('Logout sekarang?')) return;
   clearCurrent();
-  // reset UI
   loginOverlay.style.display='flex';
   document.body.classList.remove('logged-in');
   document.getElementById('displayRole').innerText='Mahasiswa';
@@ -628,40 +908,36 @@ function logout(){
   document.getElementById('btnTopUpload').style.display='none';
   document.getElementById('btnUploadPage').style.display='none';
   document.getElementById('btnAddTugas').style.display='none';
+  document.getElementById('btnAddKas').style.display='none';
   loginNIM.value=''; loginPass.value=''; loginError.style.display='none';
 }
 
-/* Export kas CSV */
 function exportKas(){
   const ks = getKas();
-  let csv = 'Nama,Status\\n';
-  ks.forEach(k => csv += `"${k.name}","${k.paid ? 'Sudah Bayar' : 'Belum Bayar'}"\\n`);
+  let csv = 'Nama,Status\n';
+  ks.forEach(k => csv += `"${k.name}","${k.paid ? 'Sudah Bayar' : 'Belum Bayar'}"\n`);
   const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href=url; a.download='kas_kelas.csv'; document.body.appendChild(a); a.click(); a.remove();
   URL.revokeObjectURL(url);
 }
 
-/* Utility */
+/* ---------- UTIL ---------- */
 function formatDeadline(d){
   const now = new Date(); const diff = d - now; const days = Math.ceil(diff/(1000*60*60*24));
   if(days < 0) return 'Terlambat'; if(days===0) return 'Hari ini'; if(days===1) return 'Besok'; return `${days} hari lagi`;
 }
 function escapeHtml(s){ return s? s.replace(/[&<>"'`]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'})[c]) : ''; }
 
-/* Modal helpers */
 function openModal(id){ document.getElementById(id).classList.add('active'); }
 function closeModal(id){ document.getElementById(id).classList.remove('active'); }
 
-/* Init on load: if logged in, auto-show app */
 window.addEventListener('DOMContentLoaded', ()=> {
   const cur = getCurrent();
-  if(cur){ onLogin(); } else { /* overlay visible by default */ }
+  if(cur){ onLogin(); }
 });
 
-/* Close modal on outside click */
 window.onclick = function(e){
   if(e.target.classList && e.target.classList.contains('modal')) e.target.classList.remove('active');
-  // login overlay shouldn't be closed by outside click to force authentication
 };
 
 </script>
