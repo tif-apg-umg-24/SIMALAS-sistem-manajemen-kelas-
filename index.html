@@ -6,7 +6,6 @@
   <title>SIMALAS - Sistem Manajemen Kelas (Firebase Real-time)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
-    /* (CSS diambil dan dipertahankan dari style yang sudah kamu gunakan) */
     /* ---------- CORE THEME ---------- */
     *{box-sizing:border-box;margin:0;padding:0}
     :root{
@@ -227,9 +226,13 @@
       border-radius:10px;font-size:14px;
     }
 
-    /* ---------- RESPONSIVE DESIGN ----------
-       (same as your original CSS)
-    */
+    /* Loading indicator */
+    .loading{
+      display:inline-block;padding:8px 16px;background:var(--light);
+      border-radius:8px;color:var(--dark);font-size:14px;
+    }
+
+    /* ---------- RESPONSIVE DESIGN ---------- */
     @media (max-width:768px){
       body{padding:12px}
       .header{padding:15px;text-align:center;justify-content:center;}
@@ -266,62 +269,12 @@
       .login-header{padding:18px}
       .login-header h1{font-size:1.1rem}
       .login-body{padding:15px}
-      .header{padding:12px;border-radius:12px;margin-bottom:12px}
-      .logo i{font-size:2rem}
-      .logo-text h1{font-size:1.2rem}
-      .logo-text p{font-size:0.8rem}
-      .user-avatar{width:38px;height:38px;font-size:0.9rem}
-      .user-details h3{font-size:0.85rem}
-      .user-details p{font-size:0.7rem}
-      .nav-tabs{padding:10px;gap:6px;border-radius:12px;margin-bottom:12px}
-      .nav-tab{padding:8px 12px;font-size:0.8rem;border-radius:8px}
-      .dashboard-grid{grid-template-columns:1fr;gap:12px;margin-bottom:15px;}
-      .stat-card{padding:15px;border-radius:12px}
-      .stat-icon{width:40px;height:40px;font-size:1.2rem;margin-bottom:10px}
-      .stat-value{font-size:1.4rem}
-      .stat-label{font-size:0.75rem}
-      .card{padding:12px;border-radius:12px}
-      .card-header{padding-bottom:12px;margin-bottom:15px}
-      .card-title{font-size:1rem}
-      .btn{padding:8px 12px;font-size:0.85rem}
-      .btn-sm{padding:6px 10px;font-size:0.8rem}
-      .material-list{gap:10px}
-      .material-item{
-        padding:10px;border-radius:10px;
-        flex-direction:column;align-items:flex-start;
-      }
-      .material-icon{width:38px;height:38px;font-size:1.1rem}
-      .material-info{width:100%}
-      .material-title{font-size:0.85rem}
-      .material-meta{font-size:0.7rem}
+      .material-item{flex-direction:column;align-items:flex-start;}
       .material-actions{width:100%;justify-content:flex-end}
-      .task-list{gap:10px}
-      .task-item{padding:10px;border-radius:10px}
-      .task-checkbox{width:20px;height:20px}
-      .task-title{font-size:0.85rem}
-      .task-deadline{font-size:0.75rem;padding:5px 10px}
-      .kas-item{padding:10px;border-radius:8px}
-      .kas-name{font-size:0.85rem;width:100%}
-      .kas-status{font-size:0.75rem;padding:5px 12px;width:100%;text-align:center}
-      .upcoming-task{padding:10px;margin-bottom:8px}
-      .upcoming-task-title{font-size:0.85rem}
-      .upcoming-task-time{font-size:0.75rem}
-      .modal-content{padding:15px;border-radius:12px;max-height:80vh}
-      .modal-header{margin-bottom:15px}
-      .modal-title{font-size:1.1rem}
-      .form-group{margin-bottom:12px}
-      .form-label{font-size:0.85rem;margin-bottom:6px}
-      .form-control{padding:8px;font-size:13px}
     }
     @media (min-width:1200px){
       .content-grid{grid-template-columns:2fr 1fr}
       .dashboard-grid{grid-template-columns:repeat(4,1fr);}
-    }
-    @media (max-width:360px){
-      .logo-text h1{font-size:1.1rem}
-      .nav-tab{padding:8px 10px;font-size:0.75rem}
-      .stat-value{font-size:1.3rem}
-      .card-title{font-size:0.95rem}
     }
   </style>
 </head>
@@ -352,7 +305,7 @@
 
       <div id="loginError" class="error-text">NIM atau password salah.</div>
       <div style="margin-top:10px;font-size:12px;color:#64748b">
-        Default passwords: ketua(240602010)=<b>ketua123</b>, bendahara(240602009)=<b>bendahara123</b>, other=<b>mahasiswa123</b>.
+        <b>Demo:</b> Ketua (240602010 / ketua123), Bendahara (240602009 / bendahara123), Lainnya (mahasiswa123)
       </div>
     </div>
   </div>
@@ -383,7 +336,7 @@
     <button class="nav-tab" onclick="showSection('tugas')"><i class="fas fa-tasks"></i> Tugas</button>
     <button class="nav-tab" onclick="showSection('kas')"><i class="fas fa-wallet"></i> Kas</button>
     <button class="nav-tab" id="tabChangePass" style="display:none" onclick="openModal('modalChangePass')"><i class="fas fa-key"></i> Password</button>
-    <button class="nav-tab" id="tabLogout" style="display:none" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    <button class="nav-tab" id="tabLogout" style="display:none" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
   </div>
 
   <!-- Dashboard -->
@@ -451,20 +404,20 @@
 <div id="modalUpload" class="modal"><div class="modal-content">
   <div class="modal-header"><h3 class="modal-title">Upload Materi</h3><button class="close-modal" onclick="closeModal('modalUpload')"><i class="fas fa-times"></i></button></div>
   <form id="formUpload" onsubmit="handleUpload(event)">
-    <div class="form-group"><label class="form-label">Nama Mata Kuliah</label><input class="form-control" name="course" required></div>
-    <div class="form-group"><label class="form-label">Judul Materi</label><input class="form-control" name="title" required></div>
-    <div class="form-group"><label class="form-label">File</label><input type="file" class="form-control" name="file" accept=".pdf,.doc,.docx,.ppt,.pptx" required></div>
-    <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-upload"></i> Upload</button>
+    <div class="form-group"><label class="form-label">Nama Mata Kuliah</label><input class="form-control" id="uploadCourse" required></div>
+    <div class="form-group"><label class="form-label">Judul Materi</label><input class="form-control" id="uploadTitle" required></div>
+    <div class="form-group"><label class="form-label">File (PDF, DOC, PPT - Max 10MB)</label><input type="file" class="form-control" id="uploadFile" accept=".pdf,.doc,.docx,.ppt,.pptx" required></div>
+    <button type="submit" class="btn btn-primary" style="width:100%" id="btnUploadSubmit"><i class="fas fa-upload"></i> Upload</button>
   </form>
 </div></div>
 
 <div id="modalAddTugas" class="modal"><div class="modal-content">
   <div class="modal-header"><h3 class="modal-title">Tambah Tugas</h3><button class="close-modal" onclick="closeModal('modalAddTugas')"><i class="fas fa-times"></i></button></div>
   <form id="formAddTugas" onsubmit="handleAddTugas(event)">
-    <div class="form-group"><label class="form-label">Mata Kuliah</label><input class="form-control" name="course" required></div>
-    <div class="form-group"><label class="form-label">Nama Tugas</label><input class="form-control" name="title" required></div>
-    <div class="form-group"><label class="form-label">Deadline</label><input type="datetime-local" class="form-control" name="deadline" required></div>
-    <div class="form-group"><label class="form-label">Deskripsi</label><textarea class="form-control" name="desc" rows="3"></textarea></div>
+    <div class="form-group"><label class="form-label">Mata Kuliah</label><input class="form-control" id="tugasCourse" required></div>
+    <div class="form-group"><label class="form-label">Nama Tugas</label><input class="form-control" id="tugasTitle" required></div>
+    <div class="form-group"><label class="form-label">Deadline</label><input type="datetime-local" class="form-control" id="tugasDeadline" required></div>
+    <div class="form-group"><label class="form-label">Deskripsi</label><textarea class="form-control" id="tugasDesc" rows="3"></textarea></div>
     <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-plus"></i> Tambah</button>
   </form>
 </div></div>
@@ -479,14 +432,12 @@
   </form>
 </div></div>
 
-<!-- Firebase SDKs (modular via CDN) -->
+<!-- Firebase SDKs -->
 <script type="module">
-  // Use your firebaseConfig (you already provided earlier). Keep as-is.
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-  import { getDatabase, ref, set, push, onValue, onChildAdded, onChildRemoved, onChildChanged, get, child, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+  import { getDatabase, ref, set, onValue, get, child, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
   import { getStorage, ref as sref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
 
-  // ---- your firebaseConfig (from your console) ----
   const firebaseConfig = {
     apiKey: "AIzaSyBI-Wo1G15FRDMyuPwBH7IZfqBjjj0JU1I",
     authDomain: "simalas-tif.firebaseapp.com",
@@ -498,12 +449,10 @@
     measurementId: "G-EVK3MB5788"
   };
 
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   const storage = getStorage(app);
 
-  // ------------------ App logic ------------------
   const seedNames = {
     "240602002":"AISYAH GRISSEETA AZ-ZAHRA","240602004":"MUHAMMAD NUR ZAKARIA","240602005":"ARIF FATHUR ROHMAN",
     "240602009":"FEBRY WULANDARI","240602010":"MUHAMMAD VIGAR SEPTIANTA PRATAMA","240602011":"ACHMAD BACHTIAR PRIMADANI",
@@ -521,22 +470,19 @@
   const ROLE_BENDAHARA = 'bendahara';
   const ROLE_MAHASISWA = 'mahasiswa';
 
-  // Default data
   const DEFAULT_MATERIALS = [
-    {id:1,title:'Algoritma dan Pemrograman - Bab 5',type:'pdf',size:'2.4 MB',date:'2 hari yang lalu'},
-    {id:2,title:'Basis Data - Normalisasi',type:'ppt',size:'5.1 MB',date:'4 hari yang lalu'},
-    {id:3,title:'Rekayasa Perangkat Lunak - UML',type:'doc',size:'1.8 MB',date:'1 minggu yang lalu'},
-    {id:4,title:'Jaringan Komputer - TCP/IP',type:'pdf',size:'3.2 MB',date:'2 minggu yang lalu'}
+    {id:1,title:'Algoritma dan Pemrograman - Bab 5',type:'pdf',size:'2.4 MB',date:'2 hari lalu'},
+    {id:2,title:'Basis Data - Normalisasi',type:'ppt',size:'5.1 MB',date:'4 hari lalu'},
+    {id:3,title:'Rekayasa Perangkat Lunak - UML',type:'doc',size:'1.8 MB',date:'1 minggu lalu'}
   ];
   const DEFAULT_TASKS = [
-    {id:1,title:'Tugas Algoritma - Sorting',course:'Algoritma',deadline:'2025-10-16T20:00'},
-    {id:2,title:'Laporan Basis Data',course:'Basis Data',deadline:'2025-10-18T23:59'},
-    {id:3,title:'Presentasi RPL',course:'RPL',deadline:'2025-10-20T14:00'},
-    {id:4,title:'Quiz Jaringan Komputer',course:'Jarkom',deadline:'2025-10-12T10:00'}
+    {id:1,title:'Tugas Algoritma - Sorting',course:'Algoritma',deadline:'2025-10-18T20:00'},
+    {id:2,title:'Laporan Basis Data',course:'Basis Data',deadline:'2025-10-20T23:59'},
+    {id:3,title:'Presentasi RPL',course:'RPL',deadline:'2025-10-22T14:00'}
   ];
   const DEFAULT_KAS = [
-    {id:1,name:'Ahmad',paid:true},{id:2,name:'Budi Santoso',paid:true},{id:3,name:'Citra Dewi',paid:false},
-    {id:4,name:'Dian Purnama',paid:true},{id:5,name:'Eka Wijaya',paid:false},{id:6,name:'Farah Nabila',paid:true}
+    {id:1,name:'Ahmad Fauzi',paid:true},{id:2,name:'Budi Santoso',paid:true},{id:3,name:'Citra Dewi',paid:false},
+    {id:4,name:'Dian Purnama',paid:true},{id:5,name:'Eka Wijaya',paid:false}
   ];
 
   // UI elements
@@ -546,18 +492,10 @@
   const loginError = document.getElementById('loginError');
   const loginNIM = document.getElementById('loginNIM');
   const loginPass = document.getElementById('loginPass');
-
-  // App UI elements
   const appContainer = document.getElementById('app');
-  const tabChangePass = document.getElementById('tabChangePass');
-  const tabLogout = document.getElementById('tabLogout');
-  const btnTopUpload = document.getElementById('btnTopUpload');
-  const btnUploadPage = document.getElementById('btnUploadPage');
-  const btnAddTugas = document.getElementById('btnAddTugas');
 
-  // ---------- Initialize DB with defaults if not present ----------
+  // Initialize DB
   async function ensureDefaults(){
-    // users
     const usersSnap = await get(child(ref(db), 'users'));
     if(!usersSnap.exists()){
       const usersObj = {};
@@ -571,27 +509,22 @@
       }
       await set(ref(db,'users'), usersObj);
     }
-    // materials
     const matsSnap = await get(child(ref(db), 'materials'));
     if(!matsSnap.exists()){
-      // set defaults
       const obj = {};
       DEFAULT_MATERIALS.forEach(m => { obj[m.id] = m; });
       await set(ref(db,'materials'), obj);
     }
-    // tasks
     const tasksSnap = await get(child(ref(db),'tasks'));
     if(!tasksSnap.exists()){
       const obj = {};
       DEFAULT_TASKS.forEach(t=>{ obj[t.id]=t; });
       await set(ref(db,'tasks'), obj);
     }
-    // taskStatus
     const tsSnap = await get(child(ref(db),'taskStatus'));
     if(!tsSnap.exists()){
       await set(ref(db,'taskStatus'), {} );
     }
-    // kas
     const ksSnap = await get(child(ref(db),'kas'));
     if(!ksSnap.exists()){
       const obj = {};
@@ -600,13 +533,12 @@
     }
   }
 
-  // Run ensureDefaults on load
   ensureDefaults().catch(e=>console.error('ensureDefaults error',e));
 
-  // ---------- AUTH (custom via DB) ----------
+  // AUTH
   btnLogin.addEventListener('click', doLogin);
   btnReset.addEventListener('click', async ()=> {
-    if(!confirm('Reset semua data (users, materials, tasks, kas) ke kondisi awal?')) return;
+    if(!confirm('Reset semua data ke kondisi awal?')) return;
     await set(ref(db,'users'), null);
     await set(ref(db,'materials'), null);
     await set(ref(db,'tasks'), null);
@@ -624,7 +556,7 @@
     const usersSnap = await get(child(ref(db),'users/'+nim));
     if(!usersSnap.exists()){ loginError.innerText='NIM tidak terdaftar.'; loginError.style.display='block'; return; }
     const user = usersSnap.val();
-    if(user.password !== pass){ loginError.innerText='NIM atau password salah.'; loginError.style.display='block'; return; }
+    if(user.password !== pass){ loginError.innerText='Password salah.'; loginError.style.display='block'; return; }
     localStorage.setItem('simalas_current', JSON.stringify(user));
     onLogin(user);
   }
@@ -632,7 +564,6 @@
   function getCurrentLocal(){ return JSON.parse(localStorage.getItem('simalas_current') || 'null'); }
   function clearCurrentLocal(){ localStorage.removeItem('simalas_current'); }
 
-  // ---------- ON LOGIN ----------
   function onLogin(user){
     if(!user) user = getCurrentLocal();
     if(!user) return;
@@ -642,54 +573,42 @@
     document.getElementById('displayUser').innerText = 'NIM: ' + user.nim;
     document.getElementById('displayAvatar').innerText = user.name ? user.name.split(' ').map(x=>x[0]).slice(0,2).join('') : '';
     const isAdmin = (user.role===ROLE_KETUA || user.role===ROLE_BENDAHARA);
-    tabChangePass.style.display = isAdmin ? 'inline-block' : 'none';
-    tabLogout.style.display = 'inline-block';
-    btnTopUpload.style.display = isAdmin ? 'inline-block' : 'none';
-    btnUploadPage.style.display = isAdmin ? 'inline-block' : 'none';
-    btnAddTugas.style.display = isAdmin ? 'inline-block' : 'none';
-
-    // attach realtime listeners
+    document.getElementById('tabChangePass').style.display = isAdmin ? 'inline-block' : 'none';
+    document.getElementById('tabLogout').style.display = 'inline-block';
+    document.getElementById('btnTopUpload').style.display = isAdmin ? 'inline-block' : 'none';
+    document.getElementById('btnUploadPage').style.display = isAdmin ? 'inline-block' : 'none';
+    document.getElementById('btnAddTugas').style.display = isAdmin ? 'inline-block' : 'none';
     setupRealtimeListeners();
   }
 
-  // ---------- Realtime listeners & rendering ----------
   let materialsCache = {};
   let tasksCache = {};
   let kasCache = {};
   let taskStatusCache = {};
 
   function setupRealtimeListeners(){
-    const matsRef = ref(db,'materials');
-    const tasksRef = ref(db,'tasks');
-    const kasRef = ref(db,'kas');
-    const tsRef = ref(db,'taskStatus');
-
-    onValue(matsRef, (snap)=>{
+    onValue(ref(db,'materials'), (snap)=>{
       materialsCache = snap.val() || {};
       renderMaterials();
       renderStats();
     });
-
-    onValue(tasksRef, (snap)=>{
+    onValue(ref(db,'tasks'), (snap)=>{
       tasksCache = snap.val() || {};
       renderTasks();
       renderStats();
     });
-
-    onValue(kasRef, (snap)=>{
+    onValue(ref(db,'kas'), (snap)=>{
       kasCache = snap.val() || {};
       renderKas();
       renderStats();
     });
-
-    onValue(tsRef, (snap)=>{
+    onValue(ref(db,'taskStatus'), (snap)=>{
       taskStatusCache = snap.val() || {};
       renderTasks();
       renderStats();
     });
   }
 
-  // ---------- Rendering helpers ----------
   function showSection(id){
     document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -708,17 +627,20 @@
     const isAdmin = cur && (cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA);
 
     const html = mats.map(m => `
-      <div class="material-item" data-id="${m.id}">
+      <div class="material-item">
         <div class="material-icon ${m.type || 'doc'}"><i class="fas fa-file-${m.type==='pdf'?'pdf':m.type==='doc'?'word':'powerpoint'}"></i></div>
-        <div class="material-info"><div class="material-title">${escapeHtml(m.title)}</div><div class="material-meta">Diupload ${m.date || '-'} • ${m.size || '-'}</div></div>
+        <div class="material-info">
+          <div class="material-title">${escapeHtml(m.title)}</div>
+          <div class="material-meta">${m.date || '-'} • ${m.size || '-'}</div>
+        </div>
         <div class="material-actions">
-          ${m.downloadURL ? `<a class="btn btn-primary btn-sm" href="${m.downloadURL}" target="_blank" rel="noopener"><i class="fas fa-download"></i></a>` : `<button class="btn btn-light btn-sm" disabled><i class="fas fa-download"></i></button>`}
+          ${m.downloadURL ? `<a class="btn btn-primary btn-sm" href="${m.downloadURL}" target="_blank" download><i class="fas fa-download"></i></a>` : `<button class="btn btn-light btn-sm" disabled><i class="fas fa-ban"></i></button>`}
           ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="confirmDeleteMaterial(${m.id})"><i class="fas fa-trash"></i></button>` : ''}
         </div>
       </div>
     `).join('');
-    preview.innerHTML = html;
-    pageList.innerHTML = html;
+    preview.innerHTML = html || '<p style="color:#64748b;text-align:center">Belum ada materi</p>';
+    pageList.innerHTML = html || '<p style="color:#64748b;text-align:center">Belum ada materi</p>';
   }
 
   function renderTasks(){
@@ -730,8 +652,7 @@
       const d = new Date(t.deadline);
       const daysLeft = Math.ceil((d - new Date())/(1000*60*60*24));
       const urgent = daysLeft <= 2 && daysLeft >= 0;
-      const key = `${t.id}_${cur?cur.nim:'guest'}`;
-      const done = !!(status && status[t.id] && status[t.id][cur.nim]);
+      const done = !!(status && status[t.id] && status[t.id][cur?.nim]);
       return `
         <div class="task-item ${done ? 'completed' : ''}">
           <div class="task-header">
@@ -741,17 +662,17 @@
             </div>
             <div style="display:flex;gap:8px;align-items:center">
               <input type="checkbox" class="task-checkbox" ${done ? 'checked' : ''} onchange="toggleTask(${t.id})">
-              ${ (cur && (cur.role===ROLE_KETUA||cur.role===ROLE_BENDAHARA)) ? `<button class="btn btn-danger btn-sm" onclick="confirmDeleteTask(${t.id})"><i class="fas fa-trash"></i></button>` : '' }
+              ${(cur && (cur.role===ROLE_KETUA||cur.role===ROLE_BENDAHARA)) ? `<button class="btn btn-danger btn-sm" onclick="confirmDeleteTask(${t.id})"><i class="fas fa-trash"></i></button>` : ''}
             </div>
           </div>
           <div class="task-deadline ${urgent && !done ? 'urgent' : ''} ${done ? 'completed' : ''}"><i class="fas fa-clock"></i> ${done ? 'Selesai' : formatDeadline(d)}</div>
         </div>
       `;
     }).join('');
-    list.innerHTML = html;
+    list.innerHTML = html || '<p style="color:#64748b;text-align:center">Belum ada tugas</p>';
     const upcoming = document.getElementById('upcoming');
     const upHtml = tasks.slice(0,3).map(t => `<div class="upcoming-task"><div class="upcoming-task-title">${escapeHtml(t.title)}</div><div class="upcoming-task-time"><i class="fas fa-clock"></i> ${formatDeadline(new Date(t.deadline))}</div></div>`).join('');
-    upcoming.innerHTML = upHtml;
+    upcoming.innerHTML = upHtml || '<p style="color:#64748b;text-align:center">Tidak ada deadline</p>';
   }
 
   function renderKas(){
@@ -765,7 +686,17 @@
         <div style="font-size:1.8rem;font-weight:bold;margin-bottom:5px">${ks.filter(k=>k.paid).length}/${ks.length} Mahasiswa</div>
         <div style="font-size:.9rem">sudah membayar kas bulan ini</div>
       </div>
-      ${ks.map(k => `<div class="kas-item"><div class="kas-name"><i class="fas fa-user"></i> ${escapeHtml(k.name)}</div><div style="display:flex;gap:8px;align-items:center">${isAdmin?`<button class="btn btn-primary btn-sm" onclick="promptEditKas(${k.id})">Edit</button>`:''}<span class="kas-status ${k.paid?'paid':'unpaid'}" ${isAdmin?`onclick="toggleKas(${k.id})" style="cursor:pointer"`:''}>${k.paid?'✓ Sudah Bayar':'✗ Belum Bayar'}</span>${isAdmin?`<button class="btn btn-danger btn-sm" onclick="confirmDeleteKas(${k.id})">Hapus</button>`:''}</div></div>`).join('')}
+      ${ks.map(k => `
+        <div class="kas-item">
+          <div class="kas-name"><i class="fas fa-user"></i> ${escapeHtml(k.name)}</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            ${isAdmin ? `<button class="btn btn-primary btn-sm" onclick="editKasName(${k.id})"><i class="fas fa-edit"></i></button>` : ''}
+            <span class="kas-status ${k.paid?'paid':'unpaid'}" ${isAdmin?`onclick="toggleKas(${k.id})" style="cursor:pointer"`:''}>${k.paid?'✓ Sudah Bayar':'✗ Belum Bayar'}</span>
+            ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="deleteKas(${k.id})"><i class="fas fa-trash"></i></button>` : ''}
+          </div>
+        </div>
+      `).join('')}
+      ${isAdmin ? `<button class="btn btn-success" onclick="addNewKas()" style="width:100%;margin-top:15px"><i class="fas fa-plus"></i> Tambah Anggota Kas</button>` : ''}
     `;
     list.innerHTML = html;
   }
@@ -780,37 +711,50 @@
     document.getElementById('statTugas').innerText = `${doneCount}/${tasks.length}`;
     const near = tasks.filter(t => { const d=new Date(t.deadline); const days=Math.ceil((d-new Date())/(1000*60*60*24)); return days>=0 && days<=7 }).length;
     document.getElementById('statDead').innerText = near;
-    const ks = Object.values(kasCache || {}); document.getElementById('statKas').innerText = (ks.length && ks.filter(k=>k.paid).length === ks.length) ? 'Lunas' : 'Belum Lunas';
+    const ks = Object.values(kasCache || {}); 
+    document.getElementById('statKas').innerText = (ks.length && ks.filter(k=>k.paid).length === ks.length) ? 'Lunas' : 'Belum Lunas';
   }
 
-  // ---------- Actions ----------
-  // Upload material -> store file in Firebase Storage then metadata in Realtime DB
+  // UPLOAD MATERIAL WITH FIREBASE STORAGE
   async function handleUpload(e){
     e.preventDefault();
     const cur = getCurrentLocal();
     if(!cur || !(cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
-    const form = document.getElementById('formUpload');
-    const course = form.course.value.trim();
-    const title = form.title.value.trim();
-    const file = form.file.files[0];
+    
+    const course = document.getElementById('uploadCourse').value.trim();
+    const title = document.getElementById('uploadTitle').value.trim();
+    const fileInput = document.getElementById('uploadFile');
+    const file = fileInput.files[0];
+    
     if(!course || !title || !file){ alert('Lengkapi semua field'); return; }
+    
+    // Check file size (max 10MB)
+    if(file.size > 10 * 1024 * 1024){ alert('File terlalu besar! Max 10MB'); return; }
 
-    const timestamp = Date.now();
-    const ext = file.name.split('.').pop().toLowerCase();
-    let type='doc'; if(ext==='pdf') type='pdf'; else if(ext.includes('ppt')) type='ppt';
-    const size = (file.size/(1024*1024)).toFixed(1)+' MB';
-    const filename = `${timestamp}_${file.name.replace(/\s+/g,'_')}`;
+    const btnSubmit = document.getElementById('btnUploadSubmit');
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
 
     try {
-      // upload to storage
+      const timestamp = Date.now();
+      const ext = file.name.split('.').pop().toLowerCase();
+      let type='doc'; 
+      if(ext==='pdf') type='pdf'; 
+      else if(ext.includes('ppt')) type='ppt';
+      const size = (file.size/(1024*1024)).toFixed(1)+' MB';
+      const filename = `${timestamp}_${file.name.replace(/\s+/g,'_')}`;
+
+      // Upload to Firebase Storage
       const storageRef = sref(storage, `materials/${filename}`);
       await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(storageRef);
 
-      // add metadata to DB - push id
+      // Get new ID
       const matsSnap = await get(child(ref(db),'materials'));
       const mats = matsSnap.exists()? matsSnap.val() : {};
       const newId = (Object.keys(mats).length? Math.max(...Object.keys(mats).map(x=>parseInt(x))) : 0) + 1;
+      
+      // Save metadata to Realtime Database
       const meta = {
         id: newId,
         title,
@@ -824,168 +768,296 @@
         uploadedBy: cur.nim,
         uploadedAt: new Date().toISOString()
       };
+      
       await set(ref(db, `materials/${newId}`), meta);
+      
       closeModal('modalUpload');
-      form.reset();
-      alert('Materi berhasil diupload dan siap didownload.');
+      document.getElementById('formUpload').reset();
+      alert('✅ Materi berhasil diupload!');
+      
     } catch(err){
       console.error(err);
-      alert('Terjadi kesalahan upload: '+err.message);
+      alert('❌ Gagal upload: ' + err.message);
+    } finally {
+      btnSubmit.disabled = false;
+      btnSubmit.innerHTML = '<i class="fas fa-upload"></i> Upload';
     }
   }
 
-  // Delete material (and remove from storage)
+  // DELETE MATERIAL
   window.confirmDeleteMaterial = async function(id){
     if(!confirm('Hapus materi ini?')) return;
-    const cur = getCurrentLocal(); if(!cur || !(cur.role===ROLE_KETUA||cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
-    const matSnap = await get(child(ref(db),`materials/${id}`));
-    if(!matSnap.exists()){ alert('Materi tidak ditemukan'); return; }
-    const mat = matSnap.val();
-    if(mat.storagePath){
-      try{
-        await deleteObject(sref(storage, mat.storagePath));
-      }catch(e){ console.warn('hapus storage failed', e); }
+    const cur = getCurrentLocal(); 
+    if(!cur || !(cur.role===ROLE_KETUA||cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
+    
+    try {
+      const matSnap = await get(child(ref(db),`materials/${id}`));
+      if(!matSnap.exists()){ alert('Materi tidak ditemukan'); return; }
+      
+      const mat = matSnap.val();
+      
+      // Delete from storage if exists
+      if(mat.storagePath){
+        try{
+          await deleteObject(sref(storage, mat.storagePath));
+        }catch(e){ console.warn('Storage delete failed', e); }
+      }
+      
+      // Delete from database
+      await set(ref(db,`materials/${id}`), null);
+      alert('✅ Materi berhasil dihapus');
+      
+    } catch(err){
+      console.error(err);
+      alert('❌ Gagal hapus: ' + err.message);
     }
-    await set(ref(db,`materials/${id}`), null);
-    alert('Materi dihapus.');
   };
 
-  // Add tugas
+  // ADD TASK
   async function handleAddTugas(e){
     e.preventDefault();
     const cur = getCurrentLocal();
     if(!cur || !(cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
-    const form = document.getElementById('formAddTugas');
-    const course = form.course.value.trim();
-    const title = form.title.value.trim();
-    const deadline = form.deadline.value;
+    
+    const course = document.getElementById('tugasCourse').value.trim();
+    const title = document.getElementById('tugasTitle').value.trim();
+    const deadline = document.getElementById('tugasDeadline').value;
+    
     if(!course||!title||!deadline){ alert('Lengkapi data tugas'); return; }
-    const tasksSnap = await get(child(ref(db),'tasks'));
-    const tasks = tasksSnap.exists()? tasksSnap.val() : {};
-    const newId = (Object.keys(tasks).length? Math.max(...Object.keys(tasks).map(x=>parseInt(x))) : 0) + 1;
-    const newTask = {id:newId, title, course, deadline, createdBy:cur.nim, createdAt:new Date().toISOString()};
-    await set(ref(db,`tasks/${newId}`), newTask);
-    closeModal('modalAddTugas'); form.reset(); alert('Tugas ditambahkan.');
+    
+    try {
+      const tasksSnap = await get(child(ref(db),'tasks'));
+      const tasks = tasksSnap.exists()? tasksSnap.val() : {};
+      const newId = (Object.keys(tasks).length? Math.max(...Object.keys(tasks).map(x=>parseInt(x))) : 0) + 1;
+      
+      const newTask = {
+        id:newId, 
+        title, 
+        course, 
+        deadline, 
+        createdBy:cur.nim, 
+        createdAt:new Date().toISOString()
+      };
+      
+      await set(ref(db,`tasks/${newId}`), newTask);
+      closeModal('modalAddTugas'); 
+      document.getElementById('formAddTugas').reset();
+      alert('✅ Tugas berhasil ditambahkan');
+      
+    } catch(err){
+      console.error(err);
+      alert('❌ Gagal tambah tugas: ' + err.message);
+    }
   }
 
+  // DELETE TASK
   window.confirmDeleteTask = async function(id){
     if(!confirm('Hapus tugas ini?')) return;
-    const cur = getCurrentLocal(); if(!cur || !(cur.role===ROLE_KETUA||cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
-    // delete task and its statuses
-    await set(ref(db,`tasks/${id}`), null);
-    await set(ref(db,`taskStatus/${id}`), null);
-    alert('Tugas dihapus.');
+    const cur = getCurrentLocal(); 
+    if(!cur || !(cur.role===ROLE_KETUA||cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
+    
+    try {
+      await set(ref(db,`tasks/${id}`), null);
+      await set(ref(db,`taskStatus/${id}`), null);
+      alert('✅ Tugas berhasil dihapus');
+    } catch(err){
+      alert('❌ Gagal hapus tugas: ' + err.message);
+    }
   };
 
-  // Toggle task done per user
+  // TOGGLE TASK
   window.toggleTask = async function(taskId){
-    const cur = getCurrentLocal(); if(!cur){ alert('Silakan login'); return; }
+    const cur = getCurrentLocal(); 
+    if(!cur){ alert('Silakan login'); return; }
+    
     const path = `taskStatus/${taskId}/${cur.nim}`;
     const snap = await get(child(ref(db), path));
     const newVal = !(snap.exists() && snap.val());
     await set(ref(db, path), newVal ? true : null);
   };
 
-  // Kas actions
+  // TOGGLE KAS
   window.toggleKas = async function(id){
     const cur = getCurrentLocal();
     if(!cur || !(cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
-    const ksSnap = await get(child(ref(db),'kas/'+id));
-    if(!ksSnap.exists()) return;
-    const k = ksSnap.val();
-    await set(ref(db,'kas/'+id+'/paid'), !k.paid);
+    
+    try {
+      const ksSnap = await get(child(ref(db),'kas/'+id));
+      if(!ksSnap.exists()) return;
+      const k = ksSnap.val();
+      await set(ref(db,'kas/'+id+'/paid'), !k.paid);
+    } catch(err){
+      alert('❌ Gagal update kas: ' + err.message);
+    }
   };
 
-  window.confirmDeleteKas = async function(id){
-    if(!confirm('Hapus record kas ini?')) return;
-    const cur = getCurrentLocal(); if(!cur || !(cur.role===ROLE_KETUA||cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
-    await set(ref(db,`kas/${id}`), null);
+  // EDIT KAS NAME
+  window.editKasName = async function(id){
+    const cur = getCurrentLocal();
+    if(!cur || !(cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
+    
+    try {
+      const ksSnap = await get(child(ref(db),'kas/'+id));
+      if(!ksSnap.exists()){ alert('Data kas tidak ditemukan'); return; }
+      
+      const k = ksSnap.val();
+      const newName = prompt('Edit nama anggota kas:', k.name);
+      
+      if(newName === null) return; // Cancel
+      if(!newName.trim()){ alert('Nama tidak boleh kosong'); return; }
+      
+      await update(ref(db,`kas/${id}`), { name: newName.trim() });
+      alert('✅ Nama berhasil diubah');
+      
+    } catch(err){
+      alert('❌ Gagal edit nama: ' + err.message);
+    }
   };
 
-  window.promptEditKas = async function(id){
-    const cur = getCurrentLocal(); if(!cur || !(cur.role===ROLE_KETUA||cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
-    const ksSnap = await get(child(ref(db),'kas/'+id));
-    const k = ksSnap.exists()? ksSnap.val() : null;
-    const newName = prompt('Ubah nama anggota kas:', k? k.name : '');
-    if(newName===null) return;
-    await update(ref(db,`kas/${id}`), { name: newName.trim() });
+  // DELETE KAS
+  window.deleteKas = async function(id){
+    const cur = getCurrentLocal();
+    if(!cur || !(cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
+    
+    if(!confirm('Hapus anggota kas ini?')) return;
+    
+    try {
+      await set(ref(db,`kas/${id}`), null);
+      alert('✅ Anggota kas berhasil dihapus');
+    } catch(err){
+      alert('❌ Gagal hapus: ' + err.message);
+    }
   };
 
-  // Change password (updates /users/{nim}/password)
+  // ADD NEW KAS
+  window.addNewKas = async function(){
+    const cur = getCurrentLocal();
+    if(!cur || !(cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
+    
+    const name = prompt('Masukkan nama anggota kas baru:');
+    if(!name || !name.trim()){ return; }
+    
+    try {
+      const kasSnap = await get(child(ref(db),'kas'));
+      const kas = kasSnap.exists()? kasSnap.val() : {};
+      const newId = (Object.keys(kas).length? Math.max(...Object.keys(kas).map(x=>parseInt(x))) : 0) + 1;
+      
+      const newKas = {
+        id: newId,
+        name: name.trim(),
+        paid: false
+      };
+      
+      await set(ref(db, `kas/${newId}`), newKas);
+      alert('✅ Anggota kas berhasil ditambahkan');
+      
+    } catch(err){
+      alert('❌ Gagal tambah anggota: ' + err.message);
+    }
+  };
+
+  // CHANGE PASSWORD
   async function handleChangePass(e){
     e.preventDefault();
-    const cur = getCurrentLocal(); if(!cur) return alert('Silakan login');
+    const cur = getCurrentLocal(); 
+    if(!cur) return alert('Silakan login');
     if(!(cur.role===ROLE_KETUA||cur.role===ROLE_BENDAHARA)) return alert('Akses ditolak');
+    
     const oldP = document.getElementById('oldPass').value;
     const newP = document.getElementById('newPass').value;
     const conf = document.getElementById('confPass').value;
+    
     if(newP !== conf) return alert('Konfirmasi password tidak sama');
-    const userSnap = await get(child(ref(db),`users/${cur.nim}`));
-    if(!userSnap.exists()) return alert('User tidak ditemukan');
-    const user = userSnap.val();
-    if(user.password !== oldP) return alert('Password lama salah');
-    await update(ref(db,`users/${cur.nim}`), { password: newP });
-    // update local
-    cur.password = newP; localStorage.setItem('simalas_current', JSON.stringify(cur));
-    closeModal('modalChangePass');
-    alert('Password berhasil diubah');
-    document.getElementById('oldPass').value=''; document.getElementById('newPass').value=''; document.getElementById('confPass').value='';
+    
+    try {
+      const userSnap = await get(child(ref(db),`users/${cur.nim}`));
+      if(!userSnap.exists()) return alert('User tidak ditemukan');
+      
+      const user = userSnap.val();
+      if(user.password !== oldP) return alert('Password lama salah');
+      
+      await update(ref(db,`users/${cur.nim}`), { password: newP });
+      
+      cur.password = newP; 
+      localStorage.setItem('simalas_current', JSON.stringify(cur));
+      
+      closeModal('modalChangePass');
+      alert('✅ Password berhasil diubah');
+      
+      document.getElementById('oldPass').value=''; 
+      document.getElementById('newPass').value=''; 
+      document.getElementById('confPass').value='';
+      
+    } catch(err){
+      alert('❌ Gagal ubah password: ' + err.message);
+    }
   }
 
-  // Logout
-  function logout(){
+  // LOGOUT
+  function doLogout(){
     if(!confirm('Logout sekarang?')) return;
     clearCurrentLocal();
     location.reload();
   }
 
-  // Export kas
+  // EXPORT KAS
   function exportKas(){
     const ks = Object.values(kasCache || {});
     let csv = 'Nama,Status\n';
     ks.forEach(k => csv += `"${k.name}","${k.paid ? 'Sudah Bayar' : 'Belum Bayar'}"\n`);
-    const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href=url; a.download='kas_kelas.csv'; document.body.appendChild(a); a.click(); a.remove();
+    const blob = new Blob([csv], {type:'text/csv'}); 
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); 
+    a.href=url; a.download='kas_kelas.csv'; 
+    document.body.appendChild(a); a.click(); a.remove();
     URL.revokeObjectURL(url);
   }
 
-  // Utility
+  // UTILITIES
   function formatDeadline(d){
-    const now = new Date(); const diff = d - now; const days = Math.ceil(diff/(1000*60*60*24));
-    if(days < 0) return 'Terlambat'; if(days===0) return 'Hari ini'; if(days===1) return 'Besok'; return `${days} hari lagi`;
+    const now = new Date(); 
+    const diff = d - now; 
+    const days = Math.ceil(diff/(1000*60*60*24));
+    if(days < 0) return 'Terlambat'; 
+    if(days===0) return 'Hari ini'; 
+    if(days===1) return 'Besok'; 
+    return `${days} hari lagi`;
   }
-  function escapeHtml(s){ return s? s.replace(/[&<>"'`]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'})[c]) : ''; }
+  
+  function escapeHtml(s){ 
+    return s? s.replace(/[&<>"'`]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'})[c]) : ''; 
+  }
+  
   function openModal(id){ document.getElementById(id).classList.add('active'); }
   function closeModal(id){ document.getElementById(id).classList.remove('active'); }
 
-  // When DOM loaded, check if already logged in
+  // INIT ON LOAD
   window.addEventListener('DOMContentLoaded', async ()=>{
     const cur = getCurrentLocal();
     if(cur){
       onLogin(cur);
     } else {
       loginOverlay.style.display='flex';
-      document.getElementById('app').style.display='none';
+      appContainer.style.display='none';
     }
   });
 
-  // Close modal on outside click
+  // CLOSE MODAL ON OUTSIDE CLICK
   window.onclick = function(e){
-    if(e.target.classList && e.target.classList.contains('modal')) e.target.classList.remove('active');
+    if(e.target.classList && e.target.classList.contains('modal')) {
+      e.target.classList.remove('active');
+    }
   };
 
-  // Make some functions globally accessible for inline onclick handlers
+  // MAKE FUNCTIONS GLOBAL
   window.showSection = showSection;
   window.handleUpload = handleUpload;
   window.handleAddTugas = handleAddTugas;
   window.handleChangePass = handleChangePass;
   window.openModal = openModal;
   window.closeModal = closeModal;
-  window.toggleKas = toggleKas;
-  window.promptEditKas = promptEditKas;
-  window.confirmDeleteKas = confirmDeleteKas;
-  window.confirmDeleteTask = confirmDeleteTask;
-  window.confirmDeleteMaterial = (id)=>{ window.confirmDeleteMaterial && window.confirmDeleteMaterial(id); };
+  window.doLogout = doLogout;
+  window.exportKas = exportKas;
 
 </script>
 </body>
