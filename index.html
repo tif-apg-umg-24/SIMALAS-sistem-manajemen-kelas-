@@ -184,6 +184,7 @@
     }
     .kas-item:hover{border-color:var(--primary)}
     .kas-name{font-weight:600;color:var(--dark);font-size:0.9rem;flex:1;min-width:150px}
+    .kas-amount{font-weight:700;color:var(--primary);font-size:0.95rem;margin-left:10px}
     .kas-status{
       padding:6px 14px;border-radius:20px;font-size:0.8rem;
       font-weight:600;flex-shrink:0;
@@ -421,6 +422,15 @@
   </form>
 </div></div>
 
+<div id="modalAddKas" class="modal"><div class="modal-content">
+  <div class="modal-header"><h3 class="modal-title">Tambah Anggota Kas</h3><button class="close-modal" onclick="closeModal('modalAddKas')"><i class="fas fa-times"></i></button></div>
+  <form id="formAddKas" onsubmit="handleAddKas(event)">
+    <div class="form-group"><label class="form-label">Nama Anggota</label><input class="form-control" id="kasName" required placeholder="Masukkan nama lengkap"></div>
+    <div class="form-group"><label class="form-label">Nominal (Rp)</label><input type="number" class="form-control" id="kasAmount" required placeholder="10000" min="1000"></div>
+    <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-plus"></i> Tambah</button>
+  </form>
+</div></div>
+
 <div id="modalChangePass" class="modal"><div class="modal-content">
   <div class="modal-header"><h3 class="modal-title">Ubah Password</h3><button class="close-modal" onclick="closeModal('modalChangePass')"><i class="fas fa-times"></i></button></div>
   <form id="formChangePass" onsubmit="handleChangePass(event)">
@@ -479,10 +489,7 @@
     {id:2,title:'Laporan Basis Data',course:'Basis Data',deadline:'2025-10-20T23:59'},
     {id:3,title:'Presentasi RPL',course:'RPL',deadline:'2025-10-22T14:00'}
   ];
-  const DEFAULT_KAS = [
-    {id:1,paid:true},{id:2,paid:true},{id:3,paid:false},
-    {id:4,paid:true},{id:5,paid:false}
-  ];
+  const DEFAULT_KAS = [];
 
   // UI elements
   const loginOverlay = document.getElementById('loginOverlay');
@@ -526,9 +533,7 @@
     }
     const ksSnap = await get(child(ref(db),'kas'));
     if(!ksSnap.exists()){
-      const obj = {};
-      DEFAULT_KAS.forEach(k=>{ obj[k.id]=k; });
-      await set(ref(db,'kas'), obj);
+      await set(ref(db,'kas'), {});
     }
   }
 
@@ -634,7 +639,7 @@
           ${m.filename ? `<div class="material-meta" style="font-size:0.75rem;color:#94a3b8">📁 ${escapeHtml(m.filename)}</div>` : ''}
         </div>
         <div class="material-actions">
-          ${m.downloadURL ? `<a class="btn btn-primary btn-sm" href="${m.downloadURL}" target="_blank" download><i class="fas fa-download"></i></a>` : ''}
+          ${m.downloadURL ? `<a class="btn btn-primary btn-sm" href="${m.downloadURL}" target="_blank" download><i class="fas fa-download"></i></a>` : `<button class="btn btn-primary btn-sm" onclick="downloadMaterial(${m.id})"><i class="fas fa-download"></i></button>`}
           ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="confirmDeleteMaterial(${m.id})"><i class="fas fa-trash"></i></button>` : ''}
         </div>
       </div>
@@ -680,22 +685,38 @@
     const list = document.getElementById('kasList');
     const cur = getCurrentLocal();
     const isAdmin = cur && (cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA);
+    
+    const totalPaid = ks.filter(k=>k.paid).reduce((sum, k) => sum + (k.amount || 0), 0);
+    const totalUnpaid = ks.filter(k=>!k.paid).reduce((sum, k) => sum + (k.amount || 0), 0);
+    const totalAll = totalPaid + totalUnpaid;
+    
     const html = `
       <div style="background:linear-gradient(135deg,var(--primary),var(--secondary));color:white;padding:20px;border-radius:12px;margin-bottom:15px">
-        <div style="font-size:.9rem;margin-bottom:10px">Status Pembayaran</div>
+        <div style="font-size:.9rem;margin-bottom:10px">Status Pembayaran Kas</div>
         <div style="font-size:1.8rem;font-weight:bold;margin-bottom:5px">${ks.filter(k=>k.paid).length}/${ks.length} Anggota</div>
-        <div style="font-size:.9rem">sudah membayar kas bulan ini</div>
+        <div style="font-size:.9rem;margin-bottom:15px">sudah membayar kas bulan ini</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:15px;padding-top:15px;border-top:1px solid rgba(255,255,255,0.3)">
+          <div>
+            <div style="font-size:0.8rem;opacity:0.9">Total Terkumpul</div>
+            <div style="font-size:1.3rem;font-weight:700">Rp ${formatRupiah(totalPaid)}</div>
+          </div>
+          <div>
+            <div style="font-size:0.8rem;opacity:0.9">Total Belum Bayar</div>
+            <div style="font-size:1.3rem;font-weight:700">Rp ${formatRupiah(totalUnpaid)}</div>
+          </div>
+        </div>
       </div>
-      ${ks.map((k, idx) => `
+      ${ks.map((k) => `
         <div class="kas-item">
-          <div class="kas-name"><i class="fas fa-user"></i> Anggota #${idx + 1}</div>
+          <div class="kas-name"><i class="fas fa-user"></i> ${escapeHtml(k.name || 'Anggota')}</div>
+          <div class="kas-amount">Rp ${formatRupiah(k.amount || 0)}</div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
             <span class="kas-status ${k.paid?'paid':'unpaid'}" ${isAdmin?`onclick="toggleKas(${k.id})" style="cursor:pointer"`:''}>${k.paid?'✓ Sudah Bayar':'✗ Belum Bayar'}</span>
             ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="deleteKas(${k.id})"><i class="fas fa-trash"></i></button>` : ''}
           </div>
         </div>
       `).join('')}
-      ${isAdmin ? `<button class="btn btn-success" onclick="addNewKas()" style="width:100%;margin-top:15px"><i class="fas fa-plus"></i> Tambah Anggota Kas</button>` : ''}
+      ${isAdmin ? `<button class="btn btn-success" onclick="openModal('modalAddKas')" style="width:100%;margin-top:15px"><i class="fas fa-plus"></i> Tambah Anggota Kas</button>` : ''}
     `;
     list.innerHTML = html;
   }
@@ -714,7 +735,25 @@
     document.getElementById('statKas').innerText = (ks.length && ks.filter(k=>k.paid).length === ks.length) ? 'Lunas' : 'Belum Lunas';
   }
 
-  // UPLOAD MATERIAL (Metadata only - simplified)
+  // DOWNLOAD MATERIAL
+  window.downloadMaterial = function(id){
+    const mat = materialsCache[id];
+    if(!mat){ alert('Materi tidak ditemukan'); return; }
+    
+    const content = `MATERI: ${mat.title}\nMata Kuliah: ${mat.course}\nUkuran: ${mat.size}\nDiunggah: ${mat.date}\nFile: ${mat.filename}`;
+    const blob = new Blob([content], {type: 'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = mat.filename || 'materi.txt';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    alert('✅ File berhasil didownload!');
+  };
+
+  // UPLOAD MATERIAL (With real file upload to Firebase Storage)
   async function handleUpload(e){
     e.preventDefault();
     const cur = getCurrentLocal();
@@ -744,6 +783,11 @@
       const mats = matsSnap.exists()? matsSnap.val() : {};
       const newId = (Object.keys(mats).length? Math.max(...Object.keys(mats).map(x=>parseInt(x))) : 0) + 1;
       
+      // Upload file to Firebase Storage
+      const storageRef = sref(storage, `materials/${newId}_${file.name}`);
+      await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(storageRef);
+      
       const meta = {
         id: newId,
         title,
@@ -752,6 +796,7 @@
         size,
         date: 'Baru saja',
         filename: file.name,
+        downloadURL: downloadURL,
         uploadedBy: cur.nim,
         uploadedAt: new Date().toISOString()
       };
@@ -760,7 +805,7 @@
       
       closeModal('modalUpload');
       document.getElementById('formUpload').reset();
-      alert('✅ Materi berhasil ditambahkan!');
+      alert('✅ Materi berhasil diupload!');
       
     } catch(err){
       console.error('Upload error:', err);
@@ -780,6 +825,18 @@
     try {
       const matSnap = await get(child(ref(db),`materials/${id}`));
       if(!matSnap.exists()){ alert('Materi tidak ditemukan'); return; }
+      
+      const mat = matSnap.val();
+      
+      // Delete from Firebase Storage if exists
+      if(mat.downloadURL){
+        try {
+          const storageRef = sref(storage, `materials/${id}_${mat.filename}`);
+          await deleteObject(storageRef);
+        } catch(e){
+          console.log('File tidak ditemukan di storage:', e);
+        }
+      }
       
       await set(ref(db,`materials/${id}`), null);
       alert('✅ Materi berhasil dihapus');
@@ -853,6 +910,40 @@
     await set(ref(db, path), newVal ? true : null);
   };
 
+  // ADD KAS
+  async function handleAddKas(e){
+    e.preventDefault();
+    const cur = getCurrentLocal();
+    if(!cur || !(cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
+    
+    const name = document.getElementById('kasName').value.trim();
+    const amount = parseInt(document.getElementById('kasAmount').value);
+    
+    if(!name || !amount || amount < 1000){ alert('Lengkapi data kas dengan benar'); return; }
+    
+    try {
+      const kasSnap = await get(child(ref(db),'kas'));
+      const kas = kasSnap.exists()? kasSnap.val() : {};
+      const newId = (Object.keys(kas).length? Math.max(...Object.keys(kas).map(x=>parseInt(x))) : 0) + 1;
+      
+      const newKas = {
+        id: newId,
+        name: name,
+        amount: amount,
+        paid: false,
+        createdAt: new Date().toISOString()
+      };
+      
+      await set(ref(db, `kas/${newId}`), newKas);
+      closeModal('modalAddKas');
+      document.getElementById('formAddKas').reset();
+      alert('✅ Anggota kas berhasil ditambahkan');
+      
+    } catch(err){
+      alert('❌ Gagal tambah anggota: ' + err.message);
+    }
+  }
+
   // TOGGLE KAS
   window.toggleKas = async function(id){
     const cur = getCurrentLocal();
@@ -880,31 +971,6 @@
       alert('✅ Anggota kas berhasil dihapus');
     } catch(err){
       alert('❌ Gagal hapus: ' + err.message);
-    }
-  };
-
-  // ADD NEW KAS
-  window.addNewKas = async function(){
-    const cur = getCurrentLocal();
-    if(!cur || !(cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
-    
-    if(!confirm('Tambah anggota kas baru?')) return;
-    
-    try {
-      const kasSnap = await get(child(ref(db),'kas'));
-      const kas = kasSnap.exists()? kasSnap.val() : {};
-      const newId = (Object.keys(kas).length? Math.max(...Object.keys(kas).map(x=>parseInt(x))) : 0) + 1;
-      
-      const newKas = {
-        id: newId,
-        paid: false
-      };
-      
-      await set(ref(db, `kas/${newId}`), newKas);
-      alert('✅ Anggota kas berhasil ditambahkan');
-      
-    } catch(err){
-      alert('❌ Gagal tambah anggota: ' + err.message);
     }
   };
 
@@ -957,8 +1023,10 @@
   // EXPORT KAS
   function exportKas(){
     const ks = Object.values(kasCache || {});
-    let csv = 'No,Status\n';
-    ks.forEach((k, idx) => csv += `"${idx + 1}","${k.paid ? 'Sudah Bayar' : 'Belum Bayar'}"\n`);
+    let csv = 'No,Nama,Nominal,Status\n';
+    ks.forEach((k, idx) => {
+      csv += `"${idx + 1}","${k.name || 'Anggota'}","Rp ${formatRupiah(k.amount || 0)}","${k.paid ? 'Sudah Bayar' : 'Belum Bayar'}"\n`;
+    });
     const blob = new Blob([csv], {type:'text/csv'}); 
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); 
@@ -976,6 +1044,10 @@
     if(days===0) return 'Hari ini'; 
     if(days===1) return 'Besok'; 
     return `${days} hari lagi`;
+  }
+  
+  function formatRupiah(num){
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
   
   function escapeHtml(s){ 
@@ -1027,6 +1099,7 @@
   window.showSection = showSection;
   window.handleUpload = handleUpload;
   window.handleAddTugas = handleAddTugas;
+  window.handleAddKas = handleAddKas;
   window.handleChangePass = handleChangePass;
   window.openModal = openModal;
   window.closeModal = closeModal;
