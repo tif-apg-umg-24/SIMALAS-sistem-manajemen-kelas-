@@ -471,9 +471,9 @@
   const ROLE_MAHASISWA = 'mahasiswa';
 
   const DEFAULT_MATERIALS = [
-    {id:1,title:'Algoritma dan Pemrograman - Bab 5',type:'pdf',size:'2.4 MB',date:'2 hari lalu'},
-    {id:2,title:'Basis Data - Normalisasi',type:'ppt',size:'5.1 MB',date:'4 hari lalu'},
-    {id:3,title:'Rekayasa Perangkat Lunak - UML',type:'doc',size:'1.8 MB',date:'1 minggu lalu'}
+    {id:1,title:'Algoritma dan Pemrograman - Bab 5',course:'Algoritma',type:'pdf',size:'2.4 MB',date:'2 hari lalu',filename:'algo_bab5.pdf'},
+    {id:2,title:'Basis Data - Normalisasi',course:'Basis Data',type:'ppt',size:'5.1 MB',date:'4 hari lalu',filename:'normalisasi.pptx'},
+    {id:3,title:'Rekayasa Perangkat Lunak - UML',course:'RPL',type:'doc',size:'1.8 MB',date:'1 minggu lalu',filename:'uml_diagram.docx'}
   ];
   const DEFAULT_TASKS = [
     {id:1,title:'Tugas Algoritma - Sorting',course:'Algoritma',deadline:'2025-10-18T20:00'},
@@ -481,8 +481,8 @@
     {id:3,title:'Presentasi RPL',course:'RPL',deadline:'2025-10-22T14:00'}
   ];
   const DEFAULT_KAS = [
-    {id:1,name:'Ahmad Fauzi',paid:true},{id:2,name:'Budi Santoso',paid:true},{id:3,name:'Citra Dewi',paid:false},
-    {id:4,name:'Dian Purnama',paid:true},{id:5,name:'Eka Wijaya',paid:false}
+    {id:1,paid:true},{id:2,paid:true},{id:3,paid:false},
+    {id:4,paid:true},{id:5,paid:false}
   ];
 
   // UI elements
@@ -631,10 +631,11 @@
         <div class="material-icon ${m.type || 'doc'}"><i class="fas fa-file-${m.type==='pdf'?'pdf':m.type==='doc'?'word':'powerpoint'}"></i></div>
         <div class="material-info">
           <div class="material-title">${escapeHtml(m.title)}</div>
-          <div class="material-meta">${m.date || '-'} • ${m.size || '-'}</div>
+          <div class="material-meta">${m.date || '-'} • ${m.size || '-'} • ${escapeHtml(m.course || '-')}</div>
+          ${m.filename ? `<div class="material-meta" style="font-size:0.75rem;color:#94a3b8">📁 ${escapeHtml(m.filename)}</div>` : ''}
         </div>
         <div class="material-actions">
-          ${m.downloadURL ? `<a class="btn btn-primary btn-sm" href="${m.downloadURL}" target="_blank" download><i class="fas fa-download"></i></a>` : `<button class="btn btn-light btn-sm" disabled><i class="fas fa-ban"></i></button>`}
+          ${m.downloadURL ? `<a class="btn btn-primary btn-sm" href="${m.downloadURL}" target="_blank" download><i class="fas fa-download"></i></a>` : ''}
           ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="confirmDeleteMaterial(${m.id})"><i class="fas fa-trash"></i></button>` : ''}
         </div>
       </div>
@@ -683,14 +684,13 @@
     const html = `
       <div style="background:linear-gradient(135deg,var(--primary),var(--secondary));color:white;padding:20px;border-radius:12px;margin-bottom:15px">
         <div style="font-size:.9rem;margin-bottom:10px">Status Pembayaran</div>
-        <div style="font-size:1.8rem;font-weight:bold;margin-bottom:5px">${ks.filter(k=>k.paid).length}/${ks.length} Mahasiswa</div>
+        <div style="font-size:1.8rem;font-weight:bold;margin-bottom:5px">${ks.filter(k=>k.paid).length}/${ks.length} Anggota</div>
         <div style="font-size:.9rem">sudah membayar kas bulan ini</div>
       </div>
-      ${ks.map(k => `
+      ${ks.map((k, idx) => `
         <div class="kas-item">
-          <div class="kas-name"><i class="fas fa-user"></i> ${escapeHtml(k.name)}</div>
+          <div class="kas-name"><i class="fas fa-user"></i> Anggota #${idx + 1}</div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            ${isAdmin ? `<button class="btn btn-primary btn-sm" onclick="editKasName(${k.id})"><i class="fas fa-edit"></i></button>` : ''}
             <span class="kas-status ${k.paid?'paid':'unpaid'}" ${isAdmin?`onclick="toggleKas(${k.id})" style="cursor:pointer"`:''}>${k.paid?'✓ Sudah Bayar':'✗ Belum Bayar'}</span>
             ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="deleteKas(${k.id})"><i class="fas fa-trash"></i></button>` : ''}
           </div>
@@ -715,7 +715,7 @@
     document.getElementById('statKas').innerText = (ks.length && ks.filter(k=>k.paid).length === ks.length) ? 'Lunas' : 'Belum Lunas';
   }
 
-  // UPLOAD MATERIAL WITH FIREBASE STORAGE
+  // UPLOAD MATERIAL (Metadata only - simplified)
   async function handleUpload(e){
     e.preventDefault();
     const cur = getCurrentLocal();
@@ -728,7 +728,6 @@
     
     if(!course || !title || !file){ alert('Lengkapi semua field'); return; }
     
-    // Check file size (max 10MB)
     if(file.size > 10 * 1024 * 1024){ alert('File terlalu besar! Max 10MB'); return; }
 
     const btnSubmit = document.getElementById('btnUploadSubmit');
@@ -736,25 +735,16 @@
     btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
 
     try {
-      const timestamp = Date.now();
       const ext = file.name.split('.').pop().toLowerCase();
       let type='doc'; 
       if(ext==='pdf') type='pdf'; 
       else if(ext.includes('ppt')) type='ppt';
       const size = (file.size/(1024*1024)).toFixed(1)+' MB';
-      const filename = `${timestamp}_${file.name.replace(/\s+/g,'_')}`;
 
-      // Upload to Firebase Storage
-      const storageRef = sref(storage, `materials/${filename}`);
-      await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(storageRef);
-
-      // Get new ID
       const matsSnap = await get(child(ref(db),'materials'));
       const mats = matsSnap.exists()? matsSnap.val() : {};
       const newId = (Object.keys(mats).length? Math.max(...Object.keys(mats).map(x=>parseInt(x))) : 0) + 1;
       
-      // Save metadata to Realtime Database
       const meta = {
         id: newId,
         title,
@@ -763,8 +753,6 @@
         size,
         date: 'Baru saja',
         filename: file.name,
-        storagePath: `materials/${filename}`,
-        downloadURL,
         uploadedBy: cur.nim,
         uploadedAt: new Date().toISOString()
       };
@@ -773,10 +761,10 @@
       
       closeModal('modalUpload');
       document.getElementById('formUpload').reset();
-      alert('✅ Materi berhasil diupload!');
+      alert('✅ Materi berhasil ditambahkan!');
       
     } catch(err){
-      console.error(err);
+      console.error('Upload error:', err);
       alert('❌ Gagal upload: ' + err.message);
     } finally {
       btnSubmit.disabled = false;
@@ -794,21 +782,11 @@
       const matSnap = await get(child(ref(db),`materials/${id}`));
       if(!matSnap.exists()){ alert('Materi tidak ditemukan'); return; }
       
-      const mat = matSnap.val();
-      
-      // Delete from storage if exists
-      if(mat.storagePath){
-        try{
-          await deleteObject(sref(storage, mat.storagePath));
-        }catch(e){ console.warn('Storage delete failed', e); }
-      }
-      
-      // Delete from database
       await set(ref(db,`materials/${id}`), null);
       alert('✅ Materi berhasil dihapus');
       
     } catch(err){
-      console.error(err);
+      console.error('Delete error:', err);
       alert('❌ Gagal hapus: ' + err.message);
     }
   };
@@ -891,29 +869,6 @@
     }
   };
 
-  // EDIT KAS NAME
-  window.editKasName = async function(id){
-    const cur = getCurrentLocal();
-    if(!cur || !(cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
-    
-    try {
-      const ksSnap = await get(child(ref(db),'kas/'+id));
-      if(!ksSnap.exists()){ alert('Data kas tidak ditemukan'); return; }
-      
-      const k = ksSnap.val();
-      const newName = prompt('Edit nama anggota kas:', k.name);
-      
-      if(newName === null) return; // Cancel
-      if(!newName.trim()){ alert('Nama tidak boleh kosong'); return; }
-      
-      await update(ref(db,`kas/${id}`), { name: newName.trim() });
-      alert('✅ Nama berhasil diubah');
-      
-    } catch(err){
-      alert('❌ Gagal edit nama: ' + err.message);
-    }
-  };
-
   // DELETE KAS
   window.deleteKas = async function(id){
     const cur = getCurrentLocal();
@@ -934,8 +889,7 @@
     const cur = getCurrentLocal();
     if(!cur || !(cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
     
-    const name = prompt('Masukkan nama anggota kas baru:');
-    if(!name || !name.trim()){ return; }
+    if(!confirm('Tambah anggota kas baru?')) return;
     
     try {
       const kasSnap = await get(child(ref(db),'kas'));
@@ -944,7 +898,6 @@
       
       const newKas = {
         id: newId,
-        name: name.trim(),
         paid: false
       };
       
@@ -968,6 +921,7 @@
     const conf = document.getElementById('confPass').value;
     
     if(newP !== conf) return alert('Konfirmasi password tidak sama');
+    if(newP.length < 6) return alert('Password minimal 6 karakter');
     
     try {
       const userSnap = await get(child(ref(db),`users/${cur.nim}`));
@@ -989,6 +943,7 @@
       document.getElementById('confPass').value='';
       
     } catch(err){
+      console.error('Password change error:', err);
       alert('❌ Gagal ubah password: ' + err.message);
     }
   }
@@ -1003,8 +958,8 @@
   // EXPORT KAS
   function exportKas(){
     const ks = Object.values(kasCache || {});
-    let csv = 'Nama,Status\n';
-    ks.forEach(k => csv += `"${k.name}","${k.paid ? 'Sudah Bayar' : 'Belum Bayar'}"\n`);
+    let csv = 'No,Status\n';
+    ks.forEach((k, idx) => csv += `"${idx + 1}","${k.paid ? 'Sudah Bayar' : 'Belum Bayar'}"\n`);
     const blob = new Blob([csv], {type:'text/csv'}); 
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); 
@@ -1028,8 +983,15 @@
     return s? s.replace(/[&<>"'`]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'})[c]) : ''; 
   }
   
-  function openModal(id){ document.getElementById(id).classList.add('active'); }
-  function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+  function openModal(id){ 
+    const modal = document.getElementById(id);
+    if(modal) modal.classList.add('active'); 
+  }
+  
+  function closeModal(id){ 
+    const modal = document.getElementById(id);
+    if(modal) modal.classList.remove('active'); 
+  }
 
   // INIT ON LOAD
   window.addEventListener('DOMContentLoaded', async ()=>{
@@ -1049,6 +1011,19 @@
     }
   };
 
+  // KEYBOARD SHORTCUTS
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){
+      document.querySelectorAll('.modal.active').forEach(m => m.classList.remove('active'));
+    }
+    if(e.key === 'Enter' && loginOverlay.style.display === 'flex'){
+      const focusedElement = document.activeElement;
+      if(focusedElement && (focusedElement.id === 'loginNIM' || focusedElement.id === 'loginPass')){
+        doLogin();
+      }
+    }
+  });
+
   // MAKE FUNCTIONS GLOBAL
   window.showSection = showSection;
   window.handleUpload = handleUpload;
@@ -1058,6 +1033,14 @@
   window.closeModal = closeModal;
   window.doLogout = doLogout;
   window.exportKas = exportKas;
+
+  // CONSOLE WELCOME
+  console.log('%c🎓 SIMALAS - Sistem Manajemen Kelas', 'color: #2563eb; font-size: 20px; font-weight: bold;');
+  console.log('%c✅ System loaded successfully!', 'color: #10b981; font-size: 14px;');
+  console.log('%cDemo Accounts:', 'color: #64748b; font-size: 12px;');
+  console.log('%c  • Ketua: 240602010 / ketua123', 'color: #64748b; font-size: 11px;');
+  console.log('%c  • Bendahara: 240602009 / bendahara123', 'color: #64748b; font-size: 11px;');
+  console.log('%c  • Mahasiswa: [NIM lain] / mahasiswa123', 'color: #64748b; font-size: 11px;');
 
 </script>
 </body>
