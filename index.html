@@ -41,6 +41,7 @@
     .login-actions{display:flex;gap:10px;margin-top:10px}
     .btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700;font-size:14px;transition:all .3s}
     .btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+    .btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
     .btn-primary{background:var(--primary);color:white}
     .btn-light{background:var(--light);color:var(--dark);border:1px solid var(--border)}
     .small-actions{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
@@ -149,6 +150,8 @@
     .material-icon.pdf{background:linear-gradient(135deg,#ef4444,#dc2626)}
     .material-icon.doc{background:linear-gradient(135deg,#3b82f6,#2563eb)}
     .material-icon.ppt{background:linear-gradient(135deg,#f59e0b,#d97706)}
+    .material-icon.xls{background:linear-gradient(135deg,#10b981,#059669)}
+    .material-icon.zip{background:linear-gradient(135deg,#8b5cf6,#7c3aed)}
     .material-info{flex:1;min-width:150px}
     .material-title{font-weight:600;color:var(--dark);margin-bottom:5px;font-size:0.95rem}
     .material-meta{font-size:0.8rem;color:#64748b}
@@ -174,6 +177,14 @@
     }
     .task-deadline.urgent{background:#fee2e2;color:#991b1b}
     .task-deadline.completed{background:#d1fae5;color:#065f46}
+    .task-link{
+      display:inline-flex;align-items:center;gap:6px;padding:6px 12px;
+      background:var(--primary);color:white;border-radius:8px;
+      font-size:0.8rem;font-weight:600;text-decoration:none;
+      transition:all .3s;margin-top:8px;
+    }
+    .task-link:hover{background:var(--primary-dark);transform:translateY(-2px)}
+    .task-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 
     /* ---------- KAS ---------- */
     .kas-list{display:flex;flex-direction:column;gap:10px}
@@ -227,11 +238,19 @@
       border-radius:10px;font-size:14px;
     }
 
-    /* Loading indicator */
-    .loading{
-      display:inline-block;padding:8px 16px;background:var(--light);
-      border-radius:8px;color:var(--dark);font-size:14px;
+    /* Loading overlay */
+    #uploadOverlay{
+      display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);
+      z-index:3000;align-items:center;justify-content:center;
     }
+    #uploadOverlay.active{display:flex}
+    .upload-progress{
+      background:white;padding:30px;border-radius:15px;text-align:center;
+      min-width:300px;
+    }
+    .upload-progress i{font-size:3rem;color:var(--primary);margin-bottom:15px}
+    .upload-progress h3{margin-bottom:10px;color:var(--dark)}
+    .upload-progress p{color:#64748b;font-size:0.9rem}
 
     /* ---------- RESPONSIVE DESIGN ---------- */
     @media (max-width:768px){
@@ -280,6 +299,15 @@
   </style>
 </head>
 <body>
+
+<!-- UPLOAD LOADING OVERLAY -->
+<div id="uploadOverlay">
+  <div class="upload-progress">
+    <i class="fas fa-spinner fa-spin"></i>
+    <h3>Mengupload File...</h3>
+    <p>Mohon tunggu, jangan tutup halaman ini</p>
+  </div>
+</div>
 
 <!-- LOGIN OVERLAY -->
 <div id="loginOverlay" role="dialog" aria-modal="true">
@@ -406,7 +434,7 @@
   <form id="formUpload" onsubmit="handleUpload(event)">
     <div class="form-group"><label class="form-label">Nama Mata Kuliah</label><input class="form-control" id="uploadCourse" required></div>
     <div class="form-group"><label class="form-label">Judul Materi</label><input class="form-control" id="uploadTitle" required></div>
-    <div class="form-group"><label class="form-label">File (PDF, DOC, PPT - Max 10MB)</label><input type="file" class="form-control" id="uploadFile" accept=".pdf,.doc,.docx,.ppt,.pptx" required></div>
+    <div class="form-group"><label class="form-label">File (PDF, DOC, PPT, XLS, ZIP - Max 50MB)</label><input type="file" class="form-control" id="uploadFile" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar" required></div>
     <button type="submit" class="btn btn-primary" style="width:100%" id="btnUploadSubmit"><i class="fas fa-upload"></i> Upload</button>
   </form>
 </div></div>
@@ -417,8 +445,18 @@
     <div class="form-group"><label class="form-label">Mata Kuliah</label><input class="form-control" id="tugasCourse" required></div>
     <div class="form-group"><label class="form-label">Nama Tugas</label><input class="form-control" id="tugasTitle" required></div>
     <div class="form-group"><label class="form-label">Deadline</label><input type="datetime-local" class="form-control" id="tugasDeadline" required></div>
+    <div class="form-group"><label class="form-label">Link Pengumpulan (opsional)</label><input type="url" class="form-control" id="tugasLink" placeholder="https://classroom.google.com/..."></div>
     <div class="form-group"><label class="form-label">Deskripsi</label><textarea class="form-control" id="tugasDesc" rows="3"></textarea></div>
     <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-plus"></i> Tambah</button>
+  </form>
+</div></div>
+
+<div id="modalEditTugas" class="modal"><div class="modal-content">
+  <div class="modal-header"><h3 class="modal-title">Edit Link Pengumpulan</h3><button class="close-modal" onclick="closeModal('modalEditTugas')"><i class="fas fa-times"></i></button></div>
+  <form id="formEditTugas" onsubmit="handleEditTugas(event)">
+    <input type="hidden" id="editTaskId">
+    <div class="form-group"><label class="form-label">Link Pengumpulan</label><input type="url" class="form-control" id="editTugasLink" placeholder="https://classroom.google.com/..."></div>
+    <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Simpan</button>
   </form>
 </div></div>
 
@@ -493,6 +531,7 @@
 
   // UI elements
   const loginOverlay = document.getElementById('loginOverlay');
+  const uploadOverlay = document.getElementById('uploadOverlay');
   const btnLogin = document.getElementById('btnLogin');
   const btnReset = document.getElementById('btnReset');
   const loginError = document.getElementById('loginError');
@@ -630,20 +669,28 @@
     const cur = getCurrentLocal();
     const isAdmin = cur && (cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA);
 
-    const html = mats.map(m => `
+    const html = mats.map(m => {
+      let iconType = 'file';
+      if(m.type === 'pdf') iconType = 'file-pdf';
+      else if(m.type === 'doc') iconType = 'file-word';
+      else if(m.type === 'ppt') iconType = 'file-powerpoint';
+      else if(m.type === 'xls') iconType = 'file-excel';
+      else if(m.type === 'zip') iconType = 'file-zipper';
+      
+      return `
       <div class="material-item">
-        <div class="material-icon ${m.type || 'doc'}"><i class="fas fa-file-${m.type==='pdf'?'pdf':m.type==='doc'?'word':'powerpoint'}"></i></div>
+        <div class="material-icon ${m.type || 'doc'}"><i class="fas fa-${iconType}"></i></div>
         <div class="material-info">
           <div class="material-title">${escapeHtml(m.title)}</div>
           <div class="material-meta">${m.date || '-'} • ${m.size || '-'} • ${escapeHtml(m.course || '-')}</div>
           ${m.filename ? `<div class="material-meta" style="font-size:0.75rem;color:#94a3b8">📁 ${escapeHtml(m.filename)}</div>` : ''}
         </div>
         <div class="material-actions">
-          ${m.downloadURL ? `<a class="btn btn-primary btn-sm" href="${m.downloadURL}" target="_blank" download><i class="fas fa-download"></i></a>` : `<button class="btn btn-primary btn-sm" onclick="downloadMaterial(${m.id})"><i class="fas fa-download"></i></button>`}
-          ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="confirmDeleteMaterial(${m.id})"><i class="fas fa-trash"></i></button>` : ''}
+          <button class="btn btn-primary btn-sm" onclick="downloadMaterial(${m.id})" title="Download file"><i class="fas fa-download"></i> Download</button>
+          ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="confirmDeleteMaterial(${m.id})" title="Hapus materi"><i class="fas fa-trash"></i></button>` : ''}
         </div>
       </div>
-    `).join('');
+    `}).join('');
     preview.innerHTML = html || '<p style="color:#64748b;text-align:center">Belum ada materi</p>';
     pageList.innerHTML = html || '<p style="color:#64748b;text-align:center">Belum ada materi</p>';
   }
@@ -652,31 +699,47 @@
     const tasks = Object.values(tasksCache || {}).sort((a,b)=> (b.id||0)-(a.id||0));
     const status = taskStatusCache || {};
     const cur = getCurrentLocal();
+    const isAdmin = cur && (cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA);
     const list = document.getElementById('tugasList');
+    
     const html = tasks.map(t => {
       const d = new Date(t.deadline);
       const daysLeft = Math.ceil((d - new Date())/(1000*60*60*24));
       const urgent = daysLeft <= 2 && daysLeft >= 0;
       const done = !!(status && status[t.id] && status[t.id][cur?.nim]);
+      
       return `
         <div class="task-item ${done ? 'completed' : ''}">
           <div class="task-header">
             <div style="flex:1">
               <div class="task-title">${escapeHtml(t.title)}</div>
               <div style="color:#64748b;font-size:.85rem;margin-top:5px"><i class="fas fa-book"></i> ${escapeHtml(t.course)}</div>
+              ${t.description ? `<div style="color:#64748b;font-size:.8rem;margin-top:5px">${escapeHtml(t.description)}</div>` : ''}
             </div>
             <div style="display:flex;gap:8px;align-items:center">
               <input type="checkbox" class="task-checkbox" ${done ? 'checked' : ''} onchange="toggleTask(${t.id})">
-              ${(cur && (cur.role===ROLE_KETUA||cur.role===ROLE_BENDAHARA)) ? `<button class="btn btn-danger btn-sm" onclick="confirmDeleteTask(${t.id})"><i class="fas fa-trash"></i></button>` : ''}
             </div>
           </div>
-          <div class="task-deadline ${urgent && !done ? 'urgent' : ''} ${done ? 'completed' : ''}"><i class="fas fa-clock"></i> ${done ? 'Selesai' : formatDeadline(d)}</div>
+          <div style="margin-top:10px">
+            <div class="task-deadline ${urgent && !done ? 'urgent' : ''} ${done ? 'completed' : ''}">
+              <i class="fas fa-clock"></i> 
+              ${done ? 'Selesai' : formatDeadlineDetailed(d)}
+            </div>
+            ${t.submissionLink ? `<a href="${t.submissionLink}" target="_blank" class="task-link"><i class="fas fa-link"></i> Buka Link Pengumpulan</a>` : ''}
+          </div>
+          ${isAdmin ? `
+            <div class="task-actions">
+              <button class="btn btn-primary btn-sm" onclick="openEditTask(${t.id})"><i class="fas fa-edit"></i> Edit Link</button>
+              <button class="btn btn-danger btn-sm" onclick="confirmDeleteTask(${t.id})"><i class="fas fa-trash"></i> Hapus</button>
+            </div>
+          ` : ''}
         </div>
       `;
     }).join('');
     list.innerHTML = html || '<p style="color:#64748b;text-align:center">Belum ada tugas</p>';
+    
     const upcoming = document.getElementById('upcoming');
-    const upHtml = tasks.slice(0,3).map(t => `<div class="upcoming-task"><div class="upcoming-task-title">${escapeHtml(t.title)}</div><div class="upcoming-task-time"><i class="fas fa-clock"></i> ${formatDeadline(new Date(t.deadline))}</div></div>`).join('');
+    const upHtml = tasks.slice(0,3).map(t => `<div class="upcoming-task"><div class="upcoming-task-title">${escapeHtml(t.title)}</div><div class="upcoming-task-time"><i class="fas fa-clock"></i> ${formatDeadlineDetailed(new Date(t.deadline))}</div></div>`).join('');
     upcoming.innerHTML = upHtml || '<p style="color:#64748b;text-align:center">Tidak ada deadline</p>';
   }
 
@@ -736,24 +799,31 @@
   }
 
   // DOWNLOAD MATERIAL
-  window.downloadMaterial = function(id){
+  window.downloadMaterial = async function(id){
     const mat = materialsCache[id];
     if(!mat){ alert('Materi tidak ditemukan'); return; }
     
-    const content = `MATERI: ${mat.title}\nMata Kuliah: ${mat.course}\nUkuran: ${mat.size}\nDiunggah: ${mat.date}\nFile: ${mat.filename}`;
-    const blob = new Blob([content], {type: 'text/plain'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = mat.filename || 'materi.txt';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-    alert('✅ File berhasil didownload!');
+    if(mat.downloadURL){
+      // Download real file from Firebase Storage
+      try {
+        const a = document.createElement('a');
+        a.href = mat.downloadURL;
+        a.download = mat.filename || 'file';
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        alert('✅ File sedang didownload!');
+      } catch(err){
+        console.error('Download error:', err);
+        alert('❌ Gagal download file: ' + err.message);
+      }
+    } else {
+      alert('❌ File tidak tersedia untuk didownload');
+    }
   };
 
-  // UPLOAD MATERIAL (With real file upload to Firebase Storage)
+  // UPLOAD MATERIAL (With real file upload to Firebase Storage - MAX 50MB)
   async function handleUpload(e){
     e.preventDefault();
     const cur = getCurrentLocal();
@@ -766,26 +836,51 @@
     
     if(!course || !title || !file){ alert('Lengkapi semua field'); return; }
     
-    if(file.size > 10 * 1024 * 1024){ alert('File terlalu besar! Max 10MB'); return; }
+    // Max 50MB
+    if(file.size > 50 * 1024 * 1024){ 
+      alert('File terlalu besar! Maksimal 50MB'); 
+      return; 
+    }
 
     const btnSubmit = document.getElementById('btnUploadSubmit');
     btnSubmit.disabled = true;
     btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+    
+    // Show upload overlay
+    uploadOverlay.classList.add('active');
+    closeModal('modalUpload');
 
     try {
       const ext = file.name.split('.').pop().toLowerCase();
       let type='doc'; 
       if(ext==='pdf') type='pdf'; 
       else if(ext.includes('ppt')) type='ppt';
-      const size = (file.size/(1024*1024)).toFixed(1)+' MB';
+      else if(ext.includes('xls')) type='xls';
+      else if(ext==='zip' || ext==='rar') type='zip';
+      
+      const size = (file.size/(1024*1024)).toFixed(2)+' MB';
 
       const matsSnap = await get(child(ref(db),'materials'));
       const mats = matsSnap.exists()? matsSnap.val() : {};
       const newId = (Object.keys(mats).length? Math.max(...Object.keys(mats).map(x=>parseInt(x))) : 0) + 1;
       
-      // Upload file to Firebase Storage
-      const storageRef = sref(storage, `materials/${newId}_${file.name}`);
-      await uploadBytes(storageRef, file);
+      // Upload file to Firebase Storage with unique name
+      const timestamp = Date.now();
+      const safeFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const storagePath = `materials/${timestamp}_${newId}_${safeFilename}`;
+      const storageRef = sref(storage, storagePath);
+      
+      // Upload with metadata
+      const metadata = {
+        contentType: file.type,
+        customMetadata: {
+          'uploadedBy': cur.nim,
+          'originalName': file.name,
+          'courseTitle': title
+        }
+      };
+      
+      await uploadBytes(storageRef, file, metadata);
       const downloadURL = await getDownloadURL(storageRef);
       
       const meta = {
@@ -797,15 +892,15 @@
         date: 'Baru saja',
         filename: file.name,
         downloadURL: downloadURL,
+        storagePath: storagePath,
         uploadedBy: cur.nim,
         uploadedAt: new Date().toISOString()
       };
       
       await set(ref(db, `materials/${newId}`), meta);
       
-      closeModal('modalUpload');
       document.getElementById('formUpload').reset();
-      alert('✅ Materi berhasil diupload!');
+      alert('✅ Materi berhasil diupload! File dapat didownload oleh semua anggota.');
       
     } catch(err){
       console.error('Upload error:', err);
@@ -813,12 +908,13 @@
     } finally {
       btnSubmit.disabled = false;
       btnSubmit.innerHTML = '<i class="fas fa-upload"></i> Upload';
+      uploadOverlay.classList.remove('active');
     }
   }
 
   // DELETE MATERIAL
   window.confirmDeleteMaterial = async function(id){
-    if(!confirm('Hapus materi ini?')) return;
+    if(!confirm('Hapus materi ini? File akan dihapus permanen dari storage.')) return;
     const cur = getCurrentLocal(); 
     if(!cur || !(cur.role===ROLE_KETUA||cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
     
@@ -829,17 +925,18 @@
       const mat = matSnap.val();
       
       // Delete from Firebase Storage if exists
-      if(mat.downloadURL){
+      if(mat.storagePath){
         try {
-          const storageRef = sref(storage, `materials/${id}_${mat.filename}`);
+          const storageRef = sref(storage, mat.storagePath);
           await deleteObject(storageRef);
+          console.log('File deleted from storage');
         } catch(e){
-          console.log('File tidak ditemukan di storage:', e);
+          console.log('File tidak ditemukan di storage atau sudah terhapus:', e);
         }
       }
       
       await set(ref(db,`materials/${id}`), null);
-      alert('✅ Materi berhasil dihapus');
+      alert('✅ Materi dan file berhasil dihapus');
       
     } catch(err){
       console.error('Delete error:', err);
@@ -856,6 +953,8 @@
     const course = document.getElementById('tugasCourse').value.trim();
     const title = document.getElementById('tugasTitle').value.trim();
     const deadline = document.getElementById('tugasDeadline').value;
+    const link = document.getElementById('tugasLink').value.trim();
+    const desc = document.getElementById('tugasDesc').value.trim();
     
     if(!course||!title||!deadline){ alert('Lengkapi data tugas'); return; }
     
@@ -868,7 +967,9 @@
         id:newId, 
         title, 
         course, 
-        deadline, 
+        deadline,
+        submissionLink: link || null,
+        description: desc || null,
         createdBy:cur.nim, 
         createdAt:new Date().toISOString()
       };
@@ -881,6 +982,39 @@
     } catch(err){
       console.error(err);
       alert('❌ Gagal tambah tugas: ' + err.message);
+    }
+  }
+
+  // EDIT TASK LINK
+  window.openEditTask = function(id){
+    const task = tasksCache[id];
+    if(!task) return;
+    document.getElementById('editTaskId').value = id;
+    document.getElementById('editTugasLink').value = task.submissionLink || '';
+    openModal('modalEditTugas');
+  };
+
+  async function handleEditTugas(e){
+    e.preventDefault();
+    const cur = getCurrentLocal();
+    if(!cur || !(cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
+    
+    const taskId = document.getElementById('editTaskId').value;
+    const link = document.getElementById('editTugasLink').value.trim();
+    
+    if(!taskId){ alert('Task ID tidak valid'); return; }
+    
+    try {
+      await update(ref(db, `tasks/${taskId}`), {
+        submissionLink: link || null
+      });
+      
+      closeModal('modalEditTugas');
+      alert('✅ Link pengumpulan berhasil diupdate');
+      
+    } catch(err){
+      console.error('Edit task error:', err);
+      alert('❌ Gagal update link: ' + err.message);
     }
   }
 
@@ -1045,6 +1179,26 @@
     if(days===1) return 'Besok'; 
     return `${days} hari lagi`;
   }
+
+  function formatDeadlineDetailed(d){
+    const now = new Date();
+    const diff = d - now;
+    const days = Math.ceil(diff/(1000*60*60*24));
+    
+    const options = { 
+      day: 'numeric', 
+      month: 'short', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+    const dateStr = d.toLocaleDateString('id-ID', options);
+    
+    if(days < 0) return `Terlambat (${dateStr})`;
+    if(days === 0) return `Hari ini - ${dateStr}`;
+    if(days === 1) return `Besok - ${dateStr}`;
+    return `${days} hari lagi (${dateStr})`;
+  }
   
   function formatRupiah(num){
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -1099,6 +1253,7 @@
   window.showSection = showSection;
   window.handleUpload = handleUpload;
   window.handleAddTugas = handleAddTugas;
+  window.handleEditTugas = handleEditTugas;
   window.handleAddKas = handleAddKas;
   window.handleChangePass = handleChangePass;
   window.openModal = openModal;
@@ -1109,6 +1264,7 @@
   // CONSOLE WELCOME
   console.log('%c🎓 SIMALAS - Sistem Manajemen Kelas', 'color: #2563eb; font-size: 20px; font-weight: bold;');
   console.log('%c✅ System loaded successfully!', 'color: #10b981; font-size: 14px;');
+  console.log('%c📤 Upload max: 50MB | Download: Real files from Firebase Storage', 'color: #f59e0b; font-size: 12px;');
   console.log('%cDemo Accounts:', 'color: #64748b; font-size: 12px;');
   console.log('%c  • Ketua: 240602010 / ketua123', 'color: #64748b; font-size: 11px;');
   console.log('%c  • Bendahara: 240602009 / bendahara123', 'color: #64748b; font-size: 11px;');
