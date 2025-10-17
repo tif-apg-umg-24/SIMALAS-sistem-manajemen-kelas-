@@ -186,6 +186,16 @@
     .task-link:hover{background:var(--primary-dark);transform:translateY(-2px)}
     .task-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 
+    /* ---------- JADWAL ---------- */
+    .jadwal-table{width:100%;border-collapse:collapse;margin-top:15px}
+    .jadwal-table th,.jadwal-table td{padding:12px;text-align:left;border-bottom:2px solid var(--border)}
+    .jadwal-table th{background:var(--light);font-weight:700;color:var(--dark);font-size:0.85rem}
+    .jadwal-table td{font-size:0.85rem;color:#475569}
+    .jadwal-table tr:hover{background:var(--light)}
+    .jadwal-day{font-weight:700;color:var(--primary)}
+    .jadwal-time{color:#64748b;font-size:0.8rem}
+    .jadwal-sks{background:var(--primary);color:white;padding:4px 10px;border-radius:20px;font-weight:600;font-size:0.75rem;display:inline-block}
+
     /* ---------- KAS ---------- */
     .kas-list{display:flex;flex-direction:column;gap:10px}
     .kas-item{
@@ -282,6 +292,8 @@
       .modal-title{font-size:1.2rem}
       .nav-tab{padding:10px 14px;font-size:0.85rem}
       .nav-tab i{margin-right:4px}
+      .jadwal-table{font-size:0.75rem}
+      .jadwal-table th,.jadwal-table td{padding:8px}
     }
     @media (max-width:480px){
       body{padding:8px}
@@ -360,6 +372,7 @@
 
   <div class="nav-tabs" id="nav">
     <button class="nav-tab active" onclick="showSection('dashboard')"><i class="fas fa-home"></i> Dashboard</button>
+    <button class="nav-tab" onclick="showSection('jadwal')"><i class="fas fa-calendar-alt"></i> Jadwal</button>
     <button class="nav-tab" onclick="showSection('materi')"><i class="fas fa-book"></i> Materi</button>
     <button class="nav-tab" onclick="showSection('tugas')"><i class="fas fa-tasks"></i> Tugas</button>
     <button class="nav-tab" onclick="showSection('kas')"><i class="fas fa-wallet"></i> Kas</button>
@@ -390,6 +403,19 @@
       <div class="card">
         <div class="card-header"><h2 class="card-title">Deadline Mendekat</h2></div>
         <div id="upcoming"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Jadwal Kuliah -->
+  <div id="jadwal" class="content-section">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Jadwal Kuliah Semester Ini</h2>
+        <div style="color:#64748b;font-size:0.85rem">Total: <span id="totalSKS" style="font-weight:700;color:var(--primary)">24 SKS</span></div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="jadwal-table" id="jadwalTable"></table>
       </div>
     </div>
   </div>
@@ -452,11 +478,15 @@
 </div></div>
 
 <div id="modalEditTugas" class="modal"><div class="modal-content">
-  <div class="modal-header"><h3 class="modal-title">Edit Link Pengumpulan</h3><button class="close-modal" onclick="closeModal('modalEditTugas')"><i class="fas fa-times"></i></button></div>
+  <div class="modal-header"><h3 class="modal-title">Edit Tugas</h3><button class="close-modal" onclick="closeModal('modalEditTugas')"><i class="fas fa-times"></i></button></div>
   <form id="formEditTugas" onsubmit="handleEditTugas(event)">
     <input type="hidden" id="editTaskId">
+    <div class="form-group"><label class="form-label">Mata Kuliah</label><input class="form-control" id="editTugasCourse" required></div>
+    <div class="form-group"><label class="form-label">Nama Tugas</label><input class="form-control" id="editTugasTitle" required></div>
+    <div class="form-group"><label class="form-label">Deadline</label><input type="datetime-local" class="form-control" id="editTugasDeadline" required></div>
     <div class="form-group"><label class="form-label">Link Pengumpulan</label><input type="url" class="form-control" id="editTugasLink" placeholder="https://classroom.google.com/..."></div>
-    <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Simpan</button>
+    <div class="form-group"><label class="form-label">Deskripsi</label><textarea class="form-control" id="editTugasDesc" rows="3"></textarea></div>
+    <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Simpan Perubahan</button>
   </form>
 </div></div>
 
@@ -512,6 +542,18 @@
     "240602034":"NABILA DWI PUTRI ZASKIA","240602035":"CITRA ANGGUN PRATIWI","240602036":"MUHAMMAD ANDIKA AULIA HAQ",
     "240602038":"MUHAMMAD FACHRUL","240602039":"REYVANDI RAHMAD SAPUTRA"
   };
+
+  // Jadwal Kuliah Data
+  const JADWAL_KULIAH = [
+    {kode:"2406023221",matkul:"AIK - KEMUHAMMADIYAHAN",kelas:"A-2",sks:2,ruang:"PG",hari:"Selasa",waktu:"07:50 - 09:30",dosen:"M. Islahuddin"},
+    {kode:"2406023316",matkul:"REKAYASA PERANGKAT LUNAK",kelas:"A-3",sks:3,ruang:"PG",hari:"Rabu",waktu:"08:45 - 11:10",dosen:"HARUNUR ROSYID, S.T., M.Kom., Ph.D."},
+    {kode:"2406023317",matkul:"PEMROGRAMAN BEORIENTASI OBYEK",kelas:"A-3",sks:3,ruang:"PG",hari:"Jumat",waktu:"08:40 - 11:10",dosen:"DENI SUTAJI, S.Kom., M.Kom"},
+    {kode:"2406023318",matkul:"ALJABAR DAN MATRIKS",kelas:"A-3",sks:3,ruang:"PG",hari:"Kamis",waktu:"07:50 - 10:20",dosen:"HENNY DWI BHAKTI, S.Si., M.Si."},
+    {kode:"2406023319",matkul:"BASIS DATA",kelas:"A-4",sks:4,ruang:"PG",hari:"Selasa",waktu:"10:20 - 12:50",dosen:"UMI CHOTIJAH, S.Kom., M.Kom"},
+    {kode:"2406023320",matkul:"STATISTIK",kelas:"A-3",sks:3,ruang:"PG",hari:"Senin",waktu:"08:40 - 11:10",dosen:"NADYA HUSENTI, S.Pd., M.Pd"},
+    {kode:"2406023322",matkul:"KOMPLEKSITAS ALGORITMA",kelas:"A-3",sks:3,ruang:"PG",hari:"Senin",waktu:"12:00 - 14:30",dosen:"HENNY DWI BHAKTI, S.SI., M.Si."},
+    {kode:"2406025334",matkul:"HUMAN COMPUTER INTERACTION",kelas:"A-3",sks:3,ruang:"PG",hari:"Kamis",waktu:"12:50 - 15:20",dosen:"PUTRI AISYIYAH RAKHMA DEVI, S.Pd., M.Kom"}
+  ];
 
   const ROLE_KETUA = 'ketua';
   const ROLE_BENDAHARA = 'bendahara';
@@ -621,6 +663,7 @@
     document.getElementById('btnTopUpload').style.display = isAdmin ? 'inline-block' : 'none';
     document.getElementById('btnUploadPage').style.display = isAdmin ? 'inline-block' : 'none';
     document.getElementById('btnAddTugas').style.display = isAdmin ? 'inline-block' : 'none';
+    renderJadwal();
     setupRealtimeListeners();
   }
 
@@ -660,6 +703,53 @@
     const navs = Array.from(document.querySelectorAll('.nav-tab'));
     const target = navs.find(n => n.textContent.trim().toLowerCase().includes(id));
     if(target) target.classList.add('active'); else navs[0].classList.add('active');
+  }
+
+  // Render Jadwal Kuliah
+  function renderJadwal(){
+    const table = document.getElementById('jadwalTable');
+    const totalSKS = JADWAL_KULIAH.reduce((sum, j) => sum + j.sks, 0);
+    document.getElementById('totalSKS').innerText = `${totalSKS} SKS`;
+    
+    const dayOrder = {Senin:1, Selasa:2, Rabu:3, Kamis:4, Jumat:5, Sabtu:6, Minggu:7};
+    const sorted = [...JADWAL_KULIAH].sort((a,b) => dayOrder[a.hari] - dayOrder[b.hari]);
+    
+    let html = `
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Kode</th>
+          <th>Mata Kuliah</th>
+          <th>Kelas</th>
+          <th>SKS</th>
+          <th>Ruang</th>
+          <th>Hari & Waktu</th>
+          <th>Dosen</th>
+        </tr>
+      </thead>
+      <tbody>
+    `;
+    
+    sorted.forEach((j, idx) => {
+      html += `
+        <tr>
+          <td>${idx + 1}</td>
+          <td style="font-size:0.75rem;color:#64748b">${j.kode}</td>
+          <td><strong>${escapeHtml(j.matkul)}</strong></td>
+          <td>${j.kelas}</td>
+          <td><span class="jadwal-sks">${j.sks}</span></td>
+          <td>${j.ruang}</td>
+          <td>
+            <div class="jadwal-day">${j.hari}</div>
+            <div class="jadwal-time"><i class="fas fa-clock"></i> ${j.waktu}</div>
+          </td>
+          <td style="font-size:0.8rem">${escapeHtml(j.dosen)}</td>
+        </tr>
+      `;
+    });
+    
+    html += `</tbody>`;
+    table.innerHTML = html;
   }
 
   function renderMaterials(){
@@ -729,7 +819,7 @@
           </div>
           ${isAdmin ? `
             <div class="task-actions">
-              <button class="btn btn-primary btn-sm" onclick="openEditTask(${t.id})"><i class="fas fa-edit"></i> Edit Link</button>
+              <button class="btn btn-primary btn-sm" onclick="openEditTask(${t.id})"><i class="fas fa-edit"></i> Edit Tugas</button>
               <button class="btn btn-danger btn-sm" onclick="confirmDeleteTask(${t.id})"><i class="fas fa-trash"></i> Hapus</button>
             </div>
           ` : ''}
@@ -804,7 +894,6 @@
     if(!mat){ alert('Materi tidak ditemukan'); return; }
     
     if(mat.downloadURL){
-      // Download real file from Firebase Storage
       try {
         const a = document.createElement('a');
         a.href = mat.downloadURL;
@@ -823,7 +912,7 @@
     }
   };
 
-  // UPLOAD MATERIAL (With real file upload to Firebase Storage - MAX 50MB)
+  // UPLOAD MATERIAL
   async function handleUpload(e){
     e.preventDefault();
     const cur = getCurrentLocal();
@@ -836,7 +925,6 @@
     
     if(!course || !title || !file){ alert('Lengkapi semua field'); return; }
     
-    // Max 50MB
     if(file.size > 50 * 1024 * 1024){ 
       alert('File terlalu besar! Maksimal 50MB'); 
       return; 
@@ -846,7 +934,6 @@
     btnSubmit.disabled = true;
     btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
     
-    // Show upload overlay
     uploadOverlay.classList.add('active');
     closeModal('modalUpload');
 
@@ -864,13 +951,11 @@
       const mats = matsSnap.exists()? matsSnap.val() : {};
       const newId = (Object.keys(mats).length? Math.max(...Object.keys(mats).map(x=>parseInt(x))) : 0) + 1;
       
-      // Upload file to Firebase Storage with unique name
       const timestamp = Date.now();
       const safeFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
       const storagePath = `materials/${timestamp}_${newId}_${safeFilename}`;
       const storageRef = sref(storage, storagePath);
       
-      // Upload with metadata
       const metadata = {
         contentType: file.type,
         customMetadata: {
@@ -924,7 +1009,6 @@
       
       const mat = matSnap.val();
       
-      // Delete from Firebase Storage if exists
       if(mat.storagePath){
         try {
           const storageRef = sref(storage, mat.storagePath);
@@ -985,12 +1069,18 @@
     }
   }
 
-  // EDIT TASK LINK
+  // EDIT TASK (FULL EDIT - ALL FIELDS)
   window.openEditTask = function(id){
     const task = tasksCache[id];
     if(!task) return;
+    
     document.getElementById('editTaskId').value = id;
+    document.getElementById('editTugasCourse').value = task.course || '';
+    document.getElementById('editTugasTitle').value = task.title || '';
+    document.getElementById('editTugasDeadline').value = task.deadline || '';
     document.getElementById('editTugasLink').value = task.submissionLink || '';
+    document.getElementById('editTugasDesc').value = task.description || '';
+    
     openModal('modalEditTugas');
   };
 
@@ -1000,21 +1090,31 @@
     if(!cur || !(cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
     
     const taskId = document.getElementById('editTaskId').value;
+    const course = document.getElementById('editTugasCourse').value.trim();
+    const title = document.getElementById('editTugasTitle').value.trim();
+    const deadline = document.getElementById('editTugasDeadline').value;
     const link = document.getElementById('editTugasLink').value.trim();
+    const desc = document.getElementById('editTugasDesc').value.trim();
     
-    if(!taskId){ alert('Task ID tidak valid'); return; }
+    if(!taskId || !course || !title || !deadline){ alert('Lengkapi semua field wajib'); return; }
     
     try {
       await update(ref(db, `tasks/${taskId}`), {
-        submissionLink: link || null
+        course: course,
+        title: title,
+        deadline: deadline,
+        submissionLink: link || null,
+        description: desc || null,
+        updatedAt: new Date().toISOString(),
+        updatedBy: cur.nim
       });
       
       closeModal('modalEditTugas');
-      alert('✅ Link pengumpulan berhasil diupdate');
+      alert('✅ Tugas berhasil diupdate');
       
     } catch(err){
       console.error('Edit task error:', err);
-      alert('❌ Gagal update link: ' + err.message);
+      alert('❌ Gagal update tugas: ' + err.message);
     }
   }
 
@@ -1264,7 +1364,9 @@
   // CONSOLE WELCOME
   console.log('%c🎓 SIMALAS - Sistem Manajemen Kelas', 'color: #2563eb; font-size: 20px; font-weight: bold;');
   console.log('%c✅ System loaded successfully!', 'color: #10b981; font-size: 14px;');
-  console.log('%c📤 Upload max: 50MB | Download: Real files from Firebase Storage', 'color: #f59e0b; font-size: 12px;');
+  console.log('%c📅 NEW: Jadwal Kuliah Menu Added!', 'color: #f59e0b; font-size: 14px; font-weight: bold;');
+  console.log('%c✏️ NEW: Full Task Edit Feature!', 'color: #f59e0b; font-size: 14px; font-weight: bold;');
+  console.log('%c📤 Upload max: 50MB | Download: Real files from Firebase Storage', 'color: #64748b; font-size: 12px;');
   console.log('%cDemo Accounts:', 'color: #64748b; font-size: 12px;');
   console.log('%c  • Ketua: 240602010 / ketua123', 'color: #64748b; font-size: 11px;');
   console.log('%c  • Bendahara: 240602009 / bendahara123', 'color: #64748b; font-size: 11px;');
