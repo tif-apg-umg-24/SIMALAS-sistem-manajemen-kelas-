@@ -803,7 +803,7 @@
         <div class="material-title">${escapeHtml(m.title)}</div>
         <div class="material-meta">${m.date || '-'} • ${courseText}</div>
         ${m.uploadType === 'file' && m.filename ? `<div class="material-meta" style="font-size:0.75rem;color:#94a3b8">📁 ${escapeHtml(m.filename)} • ${m.size || '-'}</div>` : ''}
-        ${m.uploadType === 'link' && m.link ? `<div class="material-meta" style="font-size:0.75rem;color:#94a3b8">🔗 ${escapeHtml(m.link.substring(0, 50))}...</div>` : ''}
+        
       </div>
       <div class="material-actions">
         <button class="btn btn-primary btn-sm" onclick="accessMaterial(${m.id})">${btnText}</button>
