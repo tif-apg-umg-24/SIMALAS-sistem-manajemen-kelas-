@@ -3,10 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SIMALAS - Sistem Manajemen Kelas (Firebase Real-time)</title>
+  <title>SIMALAS - Sistem Manajemen Kelas (Enhanced)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
-    /* ---------- CORE THEME ---------- */
     *{box-sizing:border-box;margin:0;padding:0}
     :root{
       --primary:#2563eb;--primary-dark:#1e40af;--secondary:#10b981;
@@ -18,8 +17,6 @@
       min-height:100vh;padding:20px;transition:background .3s;
     }
     .container{max-width:1400px;margin:0 auto;}
-
-    /* ---------- LOGIN OVERLAY ---------- */
     #loginOverlay{
       position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
       background:linear-gradient(180deg,rgba(10,8,30,0.45),rgba(10,8,30,0.55));
@@ -28,7 +25,7 @@
     .login-card{
       width:460px;max-width:100%;border-radius:16px;overflow:hidden;
       background:linear-gradient(180deg,rgba(255,255,255,0.95),rgba(255,255,255,0.98));
-      box-shadow:0 25px 80px rgba(2,6,23,0.6);backdrop-filter: blur(6px);
+      box-shadow:0 25px 80px rgba(2,6,23,0.6);backdrop-filter:blur(6px);
       animation:slideUp .45s ease;
     }
     .login-header{background:linear-gradient(90deg,var(--primary),#7b61f2);padding:22px;color:white}
@@ -38,19 +35,13 @@
     .form-row{margin-bottom:12px}
     .form-row label{display:block;font-weight:600;color:var(--dark);margin-bottom:6px}
     .form-row input{width:100%;padding:10px;border-radius:10px;border:2px solid var(--border);font-size:14px}
-    .login-actions{display:flex;gap:10px;margin-top:10px}
     .btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700;font-size:14px;transition:all .3s}
     .btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.15)}
     .btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
     .btn-primary{background:var(--primary);color:white}
     .btn-light{background:var(--light);color:var(--dark);border:1px solid var(--border)}
-    .small-actions{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
-    .small-link{color:#64748b;font-size:.9rem;cursor:pointer;text-decoration:underline}
     .error-text{color:var(--danger);margin-top:8px;font-weight:700;display:none;font-size:14px}
-
     @keyframes slideUp{from{transform:translateY(18px);opacity:0}to{transform:none;opacity:1}}
-
-    /* ---------- HEADER ---------- */
     .header{
       background:white;padding:20px;border-radius:15px;
       box-shadow:0 10px 30px rgba(0,0,0,0.1);margin-bottom:20px;
@@ -69,17 +60,11 @@
     }
     .user-details h3{font-size:0.95rem;color:var(--dark)}
     .user-details p{font-size:0.8rem;color:#64748b}
-
-    /* ---------- NAVIGATION ---------- */
     .nav-tabs{
       background:white;padding:12px;border-radius:15px;
       box-shadow:0 10px 30px rgba(0,0,0,0.1);margin-bottom:20px;
       display:flex;gap:8px;overflow-x:auto;
-      scrollbar-width:thin;scrollbar-color:var(--primary) var(--light);
     }
-    .nav-tabs::-webkit-scrollbar{height:6px}
-    .nav-tabs::-webkit-scrollbar-track{background:var(--light);border-radius:10px}
-    .nav-tabs::-webkit-scrollbar-thumb{background:var(--primary);border-radius:10px}
     .nav-tab{
       padding:10px 18px;border:none;background:transparent;color:#64748b;
       font-size:0.9rem;font-weight:600;cursor:pointer;border-radius:10px;
@@ -88,8 +73,6 @@
     .nav-tab:hover{background:var(--light);color:var(--primary)}
     .nav-tab.active{background:var(--primary);color:white}
     .nav-tab i{margin-right:6px}
-
-    /* ---------- DASHBOARD STATS ---------- */
     .dashboard-grid{
       display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
       gap:20px;margin-bottom:25px;
@@ -113,18 +96,11 @@
     .stat-card:nth-child(4) .stat-icon{background:linear-gradient(135deg,#43e97b,#38f9d7)}
     .stat-value{font-size:1.8rem;font-weight:bold;color:var(--dark);margin-bottom:5px}
     .stat-label{color:#64748b;font-size:0.85rem}
-
-    /* ---------- CONTENT SECTIONS ---------- */
     .content-section{display:none;animation:fadeIn .3s}
     .content-section.active{display:block}
     @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-
     .content-grid{display:grid;grid-template-columns:1fr;gap:20px}
-    
-    .card{
-      background:white;padding:20px;border-radius:15px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.1);
-    }
+    .card{background:white;padding:20px;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.1)}
     .card-header{
       display:flex;justify-content:space-between;align-items:center;
       margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid var(--border);
@@ -134,8 +110,6 @@
     .btn-sm{padding:8px 14px;font-size:0.85rem}
     .btn-danger{background:var(--danger);color:white}
     .btn-success{background:var(--secondary);color:white}
-
-    /* ---------- MATERIALS ---------- */
     .material-list{display:flex;flex-direction:column;gap:12px}
     .material-item{
       padding:15px;border:2px solid var(--border);border-radius:12px;
@@ -152,17 +126,13 @@
     .material-icon.ppt{background:linear-gradient(135deg,#f59e0b,#d97706)}
     .material-icon.xls{background:linear-gradient(135deg,#10b981,#059669)}
     .material-icon.zip{background:linear-gradient(135deg,#8b5cf6,#7c3aed)}
+    .material-icon.link{background:linear-gradient(135deg,#06b6d4,#0891b2)}
     .material-info{flex:1;min-width:150px}
     .material-title{font-weight:600;color:var(--dark);margin-bottom:5px;font-size:0.95rem}
     .material-meta{font-size:0.8rem;color:#64748b}
     .material-actions{display:flex;gap:8px;flex-shrink:0}
-
-    /* ---------- TASKS ---------- */
     .task-list{display:flex;flex-direction:column;gap:12px}
-    .task-item{
-      padding:15px;border:2px solid var(--border);border-radius:12px;
-      transition:all .3s;
-    }
+    .task-item{padding:15px;border:2px solid var(--border);border-radius:12px;transition:all .3s}
     .task-item.completed{background:#f0fdf4;border-color:var(--secondary)}
     .task-header{
       display:flex;justify-content:space-between;align-items:start;
@@ -185,8 +155,6 @@
     }
     .task-link:hover{background:var(--primary-dark);transform:translateY(-2px)}
     .task-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-
-    /* ---------- JADWAL ---------- */
     .jadwal-table{width:100%;border-collapse:collapse;margin-top:15px}
     .jadwal-table th,.jadwal-table td{padding:12px;text-align:left;border-bottom:2px solid var(--border)}
     .jadwal-table th{background:var(--light);font-weight:700;color:var(--dark);font-size:0.85rem}
@@ -195,8 +163,6 @@
     .jadwal-day{font-weight:700;color:var(--primary)}
     .jadwal-time{color:#64748b;font-size:0.8rem}
     .jadwal-sks{background:var(--primary);color:white;padding:4px 10px;border-radius:20px;font-weight:600;font-size:0.75rem;display:inline-block}
-
-    /* ---------- KAS ---------- */
     .kas-list{display:flex;flex-direction:column;gap:10px}
     .kas-item{
       display:flex;justify-content:space-between;align-items:center;
@@ -206,21 +172,15 @@
     .kas-item:hover{border-color:var(--primary)}
     .kas-name{font-weight:600;color:var(--dark);font-size:0.9rem;flex:1;min-width:150px}
     .kas-amount{font-weight:700;color:var(--primary);font-size:0.95rem;margin-left:10px}
-    .kas-status{
-      padding:6px 14px;border-radius:20px;font-size:0.8rem;
-      font-weight:600;flex-shrink:0;
-    }
+    .kas-status{padding:6px 14px;border-radius:20px;font-size:0.8rem;font-weight:600;flex-shrink:0}
     .kas-status.paid{background:#d1fae5;color:#065f46}
     .kas-status.unpaid{background:#fee2e2;color:#991b1b}
-
     .upcoming-task{
       padding:12px;background:var(--light);border-radius:10px;
       margin-bottom:10px;border-left:4px solid var(--warning);
     }
     .upcoming-task-title{font-weight:600;color:var(--dark);margin-bottom:5px;font-size:0.9rem}
     .upcoming-task-time{font-size:0.8rem;color:#64748b}
-
-    /* ---------- MODALS ---------- */
     .modal{
       display:none;position:fixed;top:0;left:0;width:100%;height:100%;
       background:rgba(0,0,0,0.5);z-index:2000;align-items:center;
@@ -237,98 +197,46 @@
       margin-bottom:20px;gap:10px;
     }
     .modal-title{font-size:1.3rem;color:var(--dark)}
-    .close-modal{
-      font-size:1.2rem;cursor:pointer;color:#64748b;
-      border:none;background:none;padding:5px;
-    }
+    .close-modal{font-size:1.2rem;cursor:pointer;color:#64748b;border:none;background:none;padding:5px}
     .form-group{margin-bottom:14px}
     .form-label{display:block;margin-bottom:8px;color:var(--dark);font-weight:600;font-size:0.9rem}
-    .form-control{
-      width:100%;padding:10px;border:2px solid var(--border);
-      border-radius:10px;font-size:14px;
-    }
-
-    /* Loading overlay */
+    .form-control{width:100%;padding:10px;border:2px solid var(--border);border-radius:10px;font-size:14px}
     #uploadOverlay{
       display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);
       z-index:3000;align-items:center;justify-content:center;
     }
     #uploadOverlay.active{display:flex}
-    .upload-progress{
-      background:white;padding:30px;border-radius:15px;text-align:center;
-      min-width:300px;
-    }
+    .upload-progress{background:white;padding:30px;border-radius:15px;text-align:center;min-width:300px}
     .upload-progress i{font-size:3rem;color:var(--primary);margin-bottom:15px}
     .upload-progress h3{margin-bottom:10px;color:var(--dark)}
     .upload-progress p{color:#64748b;font-size:0.9rem}
-
-    /* ---------- RESPONSIVE DESIGN ---------- */
     @media (max-width:768px){
       body{padding:12px}
-      .header{padding:15px;text-align:center;justify-content:center;}
-      .logo{flex-direction:column;gap:10px;width:100%}
-      .logo i{font-size:2.5rem}
-      .logo-text h1{font-size:1.3rem}
-      .user-info{width:100%;justify-content:center;margin-top:10px}
-      .user-avatar{width:40px;height:40px;font-size:0.95rem}
-      .user-details h3{font-size:0.9rem}
-      .user-details p{font-size:0.75rem}
-      .dashboard-grid{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;}
-      .stat-icon{width:45px;height:45px;font-size:1.3rem}
-      .stat-value{font-size:1.5rem}
-      .stat-label{font-size:0.8rem}
-      .content-grid{grid-template-columns:1fr;gap:15px}
-      .card{padding:15px}
-      .card-header{flex-direction:column;align-items:flex-start}
-      .card-title{font-size:1.1rem}
       .material-item{padding:12px;gap:10px}
-      .material-icon{width:40px;height:40px;font-size:1.2rem}
-      .material-title{font-size:0.9rem}
-      .material-meta{font-size:0.75rem}
       .task-item{padding:12px}
-      .task-header{flex-direction:column;align-items:flex-start}
-      .task-title{font-size:0.9rem}
-      .modal-content{padding:20px;max-height:85vh}
-      .modal-title{font-size:1.2rem}
-      .nav-tab{padding:10px 14px;font-size:0.85rem}
-      .nav-tab i{margin-right:4px}
-      .jadwal-table{font-size:0.75rem}
-      .jadwal-table th,.jadwal-table td{padding:8px}
-    }
-    @media (max-width:480px){
-      body{padding:8px}
-      .login-card{width:100%;margin:10px}
-      .login-header{padding:18px}
-      .login-header h1{font-size:1.1rem}
-      .login-body{padding:15px}
-      .material-item{flex-direction:column;align-items:flex-start;}
-      .material-actions{width:100%;justify-content:flex-end}
     }
     @media (min-width:1200px){
       .content-grid{grid-template-columns:2fr 1fr}
-      .dashboard-grid{grid-template-columns:repeat(4,1fr);}
+      .dashboard-grid{grid-template-columns:repeat(4,1fr)}
     }
   </style>
 </head>
 <body>
 
-<!-- UPLOAD LOADING OVERLAY -->
 <div id="uploadOverlay">
   <div class="upload-progress">
     <i class="fas fa-spinner fa-spin"></i>
-    <h3>Mengupload File...</h3>
-    <p>Mohon tunggu, jangan tutup halaman ini</p>
+    <h3>Memproses...</h3>
+    <p>Mohon tunggu sebentar</p>
   </div>
 </div>
 
-<!-- LOGIN OVERLAY -->
-<div id="loginOverlay" role="dialog" aria-modal="true">
-  <div class="login-card" aria-labelledby="loginTitle">
+<div id="loginOverlay">
+  <div class="login-card">
     <div class="login-header">
-      <h1 id="loginTitle"><i class="fas fa-graduation-cap"></i> SIMALAS</h1>
+      <h1><i class="fas fa-graduation-cap"></i> SIMALAS</h1>
       <p>Masuk dengan NIM & password</p>
     </div>
-
     <div class="login-body">
       <div class="form-row">
         <label for="loginNIM">NIM</label>
@@ -338,20 +246,15 @@
         <label for="loginPass">Password</label>
         <input id="loginPass" type="password" placeholder="masukkan password" />
       </div>
-
       <div style="display:flex;gap:10px;margin-top:8px">
         <button id="btnLogin" class="btn btn-primary" style="flex:1"><i class="fas fa-right-to-bracket"></i> Login</button>
-        <button id="btnReset" class="btn btn-light" title="Reset data ke kondisi awal" style="flex:0 0 auto"><i class="fas fa-rotate-left"></i></button>
+        <button id="btnReset" class="btn btn-light" title="Reset data" style="flex:0 0 auto"><i class="fas fa-rotate-left"></i></button>
       </div>
-
       <div id="loginError" class="error-text">NIM atau password salah.</div>
-      <div style="margin-top:10px;font-size:12px;color:#64748b">
-      </div>
     </div>
   </div>
 </div>
 
-<!-- APP CONTAINER -->
 <div class="container" id="app" style="display:none">
   <div class="header">
     <div class="logo">
@@ -370,36 +273,36 @@
     </div>
   </div>
 
-  <div class="nav-tabs" id="nav">
+  <div class="nav-tabs">
     <button class="nav-tab active" onclick="showSection('dashboard')"><i class="fas fa-home"></i> Dashboard</button>
     <button class="nav-tab" onclick="showSection('jadwal')"><i class="fas fa-calendar-alt"></i> Jadwal</button>
     <button class="nav-tab" onclick="showSection('materi')"><i class="fas fa-book"></i> Materi</button>
     <button class="nav-tab" onclick="showSection('tugas')"><i class="fas fa-tasks"></i> Tugas</button>
     <button class="nav-tab" onclick="showSection('kas')"><i class="fas fa-wallet"></i> Kas</button>
-    <button class="nav-tab" id="tabChangePass" style="display:none" onclick="openModal('modalChangePass')"><i class="fas fa-key"></i> Password</button>
-    <button class="nav-tab" id="tabLogout" style="display:none" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    <button class="nav-tab" onclick="openModal('modalChangePass')"><i class="fas fa-key"></i> Password</button>
+    <button class="nav-tab" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
   </div>
 
-  <!-- Dashboard -->
   <div id="dashboard" class="content-section active">
     <div class="dashboard-grid">
       <div class="stat-card"><div class="stat-icon"><i class="fas fa-book"></i></div><div class="stat-value" id="statMateri">0</div><div class="stat-label">Materi Tersedia</div></div>
       <div class="stat-card"><div class="stat-icon"><i class="fas fa-tasks"></i></div><div class="stat-value" id="statTugas">0/0</div><div class="stat-label">Tugas Selesai</div></div>
       <div class="stat-card"><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-value" id="statDead">0</div><div class="stat-label">Deadline Mendekat</div></div>
-      <div class="stat-card"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-value" id="statKas">-</div><div class="stat-label">Status Kas Bulan Ini</div></div>
+      <div class="stat-card"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-value" id="statKas">-</div><div class="stat-label">Status Kas</div></div>
     </div>
-
     <div class="content-grid">
       <div class="card">
         <div class="card-header">
           <h2 class="card-title">Materi Terbaru</h2>
-          <div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <select id="filterDashboard" class="form-control" style="width:auto;padding:8px 12px;font-size:0.85rem" onchange="applyFilterDashboard()">
+              <option value="all">📚 Semua Mata Kuliah</option>
+            </select>
             <button id="btnTopUpload" class="btn btn-primary btn-sm" onclick="openModal('modalUpload')" style="display:none"><i class="fas fa-plus"></i> Upload</button>
           </div>
         </div>
         <div class="material-list" id="materiPreview"></div>
       </div>
-
       <div class="card">
         <div class="card-header"><h2 class="card-title">Deadline Mendekat</h2></div>
         <div id="upcoming"></div>
@@ -407,109 +310,196 @@
     </div>
   </div>
 
-  <!-- Jadwal Kuliah -->
   <div id="jadwal" class="content-section">
     <div class="card">
       <div class="card-header">
-        <h2 class="card-title">Jadwal Kuliah Semester Ini</h2>
+        <h2 class="card-title">Jadwal Kuliah</h2>
         <div style="color:#64748b;font-size:0.85rem">Total: <span id="totalSKS" style="font-weight:700;color:var(--primary)">24 SKS</span></div>
       </div>
-      <div style="overflow-x:auto">
-        <table class="jadwal-table" id="jadwalTable"></table>
-      </div>
+      <div style="overflow-x:auto"><table class="jadwal-table" id="jadwalTable"></table></div>
     </div>
   </div>
 
-  <!-- Materi -->
   <div id="materi" class="content-section">
     <div class="card">
       <div class="card-header">
         <h2 class="card-title">Materi Kuliah</h2>
-        <div><button id="btnUploadPage" class="btn btn-primary btn-sm" onclick="openModal('modalUpload')" style="display:none"><i class="fas fa-plus"></i> Upload</button></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select id="filterMateri" class="form-control" style="width:auto;padding:8px 12px;font-size:0.85rem" onchange="applyFilterMateri()">
+            <option value="all">📚 Semua Mata Kuliah</option>
+          </select>
+          <button id="btnUploadPage" class="btn btn-primary btn-sm" onclick="openModal('modalUpload')" style="display:none"><i class="fas fa-plus"></i> Upload</button>
+        </div>
       </div>
       <div class="material-list" id="materiList"></div>
     </div>
   </div>
 
-  <!-- Tugas -->
   <div id="tugas" class="content-section">
     <div class="card">
       <div class="card-header">
         <h2 class="card-title">Daftar Tugas</h2>
-        <div><button id="btnAddTugas" class="btn btn-primary btn-sm" onclick="openModal('modalAddTugas')" style="display:none"><i class="fas fa-plus"></i> Tambah</button></div>
+        <button id="btnAddTugas" class="btn btn-primary btn-sm" onclick="openModal('modalAddTugas')" style="display:none"><i class="fas fa-plus"></i> Tambah</button>
       </div>
       <div class="task-list" id="tugasList"></div>
     </div>
   </div>
 
-  <!-- Kas -->
   <div id="kas" class="content-section">
     <div class="card">
       <div class="card-header">
         <h2 class="card-title">Kas Kelas</h2>
-        <div><button class="btn btn-success btn-sm" onclick="exportKas()"><i class="fas fa-download"></i> Export</button></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-success btn-sm" onclick="exportKas()"><i class="fas fa-download"></i> Export</button>
+          <button id="btnAddKas" class="btn btn-primary btn-sm" onclick="openModal('modalAddKas')" style="display:none"><i class="fas fa-plus"></i> Tambah Anggota</button>
+        </div>
       </div>
       <div class="kas-list" id="kasList"></div>
     </div>
   </div>
 </div>
 
-<!-- Modals -->
-<div id="modalUpload" class="modal"><div class="modal-content">
-  <div class="modal-header"><h3 class="modal-title">Upload Materi</h3><button class="close-modal" onclick="closeModal('modalUpload')"><i class="fas fa-times"></i></button></div>
-  <form id="formUpload" onsubmit="handleUpload(event)">
-    <div class="form-group"><label class="form-label">Nama Mata Kuliah</label><input class="form-control" id="uploadCourse" required></div>
-    <div class="form-group"><label class="form-label">Judul Materi</label><input class="form-control" id="uploadTitle" required></div>
-    <div class="form-group"><label class="form-label">File (PDF, DOC, PPT, XLS, ZIP - Max 50MB)</label><input type="file" class="form-control" id="uploadFile" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar" required></div>
-    <button type="submit" class="btn btn-primary" style="width:100%" id="btnUploadSubmit"><i class="fas fa-upload"></i> Upload</button>
-  </form>
-</div></div>
+<!-- MODALS -->
+<div id="modalUpload" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Upload Materi</h3>
+      <button class="close-modal" onclick="closeModal('modalUpload')"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="formUpload" onsubmit="handleUpload(event)">
+      <div class="form-group">
+        <label class="form-label">Scope Materi</label>
+        <select class="form-control" id="uploadScope" onchange="toggleCourseField()" required>
+          <option value="all">📚 Semua Mata Kuliah</option>
+          <option value="specific">📖 Mata Kuliah Tertentu</option>
+        </select>
+      </div>
+      <div class="form-group" id="courseGroup" style="display:none">
+        <label class="form-label">Nama Mata Kuliah</label>
+        <input class="form-control" id="uploadCourse">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Judul Materi</label>
+        <input class="form-control" id="uploadTitle" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipe Upload</label>
+        <select class="form-control" id="uploadType" onchange="toggleUploadType()" required>
+          <option value="file">📁 Upload File</option>
+          <option value="link">🔗 Input Link</option>
+        </select>
+      </div>
+      <div class="form-group" id="fileGroup">
+        <label class="form-label">File (Max 50MB)</label>
+        <input type="file" class="form-control" id="uploadFile" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar">
+      </div>
+      <div class="form-group" id="linkGroup" style="display:none">
+        <label class="form-label">Link Materi</label>
+        <input type="url" class="form-control" id="uploadLink" placeholder="https://drive.google.com/...">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%" id="btnUploadSubmit"><i class="fas fa-upload"></i> Upload</button>
+    </form>
+  </div>
+</div>
 
-<div id="modalAddTugas" class="modal"><div class="modal-content">
-  <div class="modal-header"><h3 class="modal-title">Tambah Tugas</h3><button class="close-modal" onclick="closeModal('modalAddTugas')"><i class="fas fa-times"></i></button></div>
-  <form id="formAddTugas" onsubmit="handleAddTugas(event)">
-    <div class="form-group"><label class="form-label">Mata Kuliah</label><input class="form-control" id="tugasCourse" required></div>
-    <div class="form-group"><label class="form-label">Nama Tugas</label><input class="form-control" id="tugasTitle" required></div>
-    <div class="form-group"><label class="form-label">Deadline</label><input type="datetime-local" class="form-control" id="tugasDeadline" required></div>
-    <div class="form-group"><label class="form-label">Link Pengumpulan (opsional)</label><input type="url" class="form-control" id="tugasLink" placeholder="https://classroom.google.com/..."></div>
-    <div class="form-group"><label class="form-label">Deskripsi</label><textarea class="form-control" id="tugasDesc" rows="3"></textarea></div>
-    <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-plus"></i> Tambah</button>
-  </form>
-</div></div>
+<div id="modalAddTugas" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Tambah Tugas</h3>
+      <button class="close-modal" onclick="closeModal('modalAddTugas')"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="formAddTugas" onsubmit="handleAddTugas(event)">
+      <div class="form-group"><label class="form-label">Mata Kuliah</label><input class="form-control" id="tugasCourse" required></div>
+      <div class="form-group"><label class="form-label">Nama Tugas</label><input class="form-control" id="tugasTitle" required></div>
+      <div class="form-group"><label class="form-label">Deadline</label><input type="datetime-local" class="form-control" id="tugasDeadline" required></div>
+      <div class="form-group"><label class="form-label">Link Pengumpulan</label><input type="url" class="form-control" id="tugasLink" placeholder="https://classroom.google.com/..."></div>
+      <div class="form-group"><label class="form-label">Deskripsi</label><textarea class="form-control" id="tugasDesc" rows="3"></textarea></div>
+      <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-plus"></i> Tambah</button>
+    </form>
+  </div>
+</div>
 
-<div id="modalEditTugas" class="modal"><div class="modal-content">
-  <div class="modal-header"><h3 class="modal-title">Edit Tugas</h3><button class="close-modal" onclick="closeModal('modalEditTugas')"><i class="fas fa-times"></i></button></div>
-  <form id="formEditTugas" onsubmit="handleEditTugas(event)">
-    <input type="hidden" id="editTaskId">
-    <div class="form-group"><label class="form-label">Mata Kuliah</label><input class="form-control" id="editTugasCourse" required></div>
-    <div class="form-group"><label class="form-label">Nama Tugas</label><input class="form-control" id="editTugasTitle" required></div>
-    <div class="form-group"><label class="form-label">Deadline</label><input type="datetime-local" class="form-control" id="editTugasDeadline" required></div>
-    <div class="form-group"><label class="form-label">Link Pengumpulan</label><input type="url" class="form-control" id="editTugasLink" placeholder="https://classroom.google.com/..."></div>
-    <div class="form-group"><label class="form-label">Deskripsi</label><textarea class="form-control" id="editTugasDesc" rows="3"></textarea></div>
-    <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Simpan Perubahan</button>
-  </form>
-</div></div>
+<div id="modalEditTugas" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Edit Tugas</h3>
+      <button class="close-modal" onclick="closeModal('modalEditTugas')"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="formEditTugas" onsubmit="handleEditTugas(event)">
+      <input type="hidden" id="editTaskId">
+      <div class="form-group"><label class="form-label">Mata Kuliah</label><input class="form-control" id="editTugasCourse" required></div>
+      <div class="form-group"><label class="form-label">Nama Tugas</label><input class="form-control" id="editTugasTitle" required></div>
+      <div class="form-group"><label class="form-label">Deadline</label><input type="datetime-local" class="form-control" id="editTugasDeadline" required></div>
+      <div class="form-group"><label class="form-label">Link Pengumpulan</label><input type="url" class="form-control" id="editTugasLink"></div>
+      <div class="form-group"><label class="form-label">Deskripsi</label><textarea class="form-control" id="editTugasDesc" rows="3"></textarea></div>
+      <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Simpan</button>
+    </form>
+  </div>
+</div>
 
-<div id="modalAddKas" class="modal"><div class="modal-content">
-  <div class="modal-header"><h3 class="modal-title">Tambah Anggota Kas</h3><button class="close-modal" onclick="closeModal('modalAddKas')"><i class="fas fa-times"></i></button></div>
-  <form id="formAddKas" onsubmit="handleAddKas(event)">
-    <div class="form-group"><label class="form-label">Nama Anggota</label><input class="form-control" id="kasName" required placeholder="Masukkan nama lengkap"></div>
-    <div class="form-group"><label class="form-label">Nominal (Rp)</label><input type="number" class="form-control" id="kasAmount" required placeholder="10000" min="1000"></div>
-    <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-plus"></i> Tambah</button>
-  </form>
-</div></div>
+<div id="modalAddKas" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Tambah Anggota Kas</h3>
+      <button class="close-modal" onclick="closeModal('modalAddKas')"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="formAddKas" onsubmit="handleAddKas(event)">
+      <div class="form-group">
+        <label class="form-label">NIM (opsional)</label>
+        <input class="form-control" id="addKasNIM" placeholder="240602xxx">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nama <span style="color:var(--danger)">*</span></label>
+        <input class="form-control" id="addKasName" required placeholder="Nama lengkap anggota">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nominal (Rp) <span style="color:var(--danger)">*</span></label>
+        <input type="number" class="form-control" id="addKasAmount" required min="1000" value="10000" placeholder="10000">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-plus"></i> Tambah Anggota</button>
+    </form>
+  </div>
+</div>
 
-<div id="modalChangePass" class="modal"><div class="modal-content">
-  <div class="modal-header"><h3 class="modal-title">Ubah Password</h3><button class="close-modal" onclick="closeModal('modalChangePass')"><i class="fas fa-times"></i></button></div>
-  <form id="formChangePass" onsubmit="handleChangePass(event)">
-    <div class="form-group"><label class="form-label">Password Lama</label><input type="password" id="oldPass" class="form-control" required></div>
-    <div class="form-group"><label class="form-label">Password Baru</label><input type="password" id="newPass" class="form-control" required></div>
-    <div class="form-group"><label class="form-label">Konfirmasi Password</label><input type="password" id="confPass" class="form-control" required></div>
-    <button type="submit" class="btn btn-primary" style="width:100%">Simpan</button>
-  </form>
-</div></div>
+<div id="modalEditKas" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Edit Kas</h3>
+      <button class="close-modal" onclick="closeModal('modalEditKas')"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="formEditKas" onsubmit="handleEditKas(event)">
+      <input type="hidden" id="editKasId">
+      <div class="form-group"><label class="form-label">Nama</label><input class="form-control" id="editKasName" required></div>
+      <div class="form-group"><label class="form-label">Nominal (Rp)</label><input type="number" class="form-control" id="editKasAmount" required min="1000"></div>
+      <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-save"></i> Simpan</button>
+    </form>
+  </div>
+</div>
 
-<!-- Firebase SDKs -->
+<div id="modalChangePass" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Ubah Password</h3>
+      <button class="close-modal" onclick="closeModal('modalChangePass')"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="formChangePass" onsubmit="handleChangePass(event)">
+      <div class="form-group">
+        <label class="form-label">Password Lama <span style="color:var(--danger)">*</span></label>
+        <input type="password" id="oldPass" class="form-control" required placeholder="Masukkan password lama">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password Baru <span style="color:var(--danger)">*</span></label>
+        <input type="password" id="newPass" class="form-control" required placeholder="Minimal 6 karakter">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Konfirmasi Password <span style="color:var(--danger)">*</span></label>
+        <input type="password" id="confPass" class="form-control" required placeholder="Ketik ulang password baru">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%"><i class="fas fa-key"></i> Ubah Password</button>
+    </form>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
   import { getDatabase, ref, set, onValue, get, child, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
@@ -543,35 +533,21 @@
     "240602038":"MUHAMMAD FACHRUL","240602039":"REYVANDI RAHMAD SAPUTRA"
   };
 
-  // Jadwal Kuliah Data
   const JADWAL_KULIAH = [
     {kode:"2406023221",matkul:"AIK - KEMUHAMMADIYAHAN",kelas:"A-PG",sks:2,ruang:"I6.06",hari:"Selasa",waktu:"07:50 - 09:30",dosen:"M. Islahuddin"},
     {kode:"2406023316",matkul:"REKAYASA PERANGKAT LUNAK",kelas:"A-PG",sks:3,ruang:"I6.06",hari:"Rabu",waktu:"08:45 - 11:10",dosen:"HARUNUR ROSYID, S.T., M.Kom., Ph.D."},
     {kode:"2406023317",matkul:"PEMROGRAMAN BEORIENTASI OBYEK",kelas:"A-PG",sks:3,ruang:"D2.11",hari:"Jumat",waktu:"08:40 - 11:10",dosen:"DENI SUTAJI, S.Kom., M.Kom"},
-    {kode:"2406023318",matkul:"ALJABAR DAN MATRIKS",kelas:"A-PG",sks:3,ruang:"F3.16",hari:"Kamis",waktu:"07:50 - 10:20",dosen:"HENNY DWI BHAKTI, S.Si., M.Si."},
+    {kode:"2406023318",matkul:"ALJABAR DAN MATRIKS",kelas:"A-PG",sks:3,ruang:"PG",hari:"D2.11",waktu:"07:50 - 10:20",dosen:"HENNY DWI BHAKTI, S.Si., M.Si."},
     {kode:"2406023319",matkul:"BASIS DATA",kelas:"A-PG",sks:4,ruang:"D2.11",hari:"Selasa",waktu:"10:20 - 12:50",dosen:"UMI CHOTIJAH, S.Kom., M.Kom"},
     {kode:"2406023320",matkul:"STATISTIK",kelas:"A-PG",sks:3,ruang:"F3.14",hari:"Senin",waktu:"08:40 - 11:10",dosen:"NADYA HUSENTI, S.Pd., M.Pd"},
-    {kode:"2406023322",matkul:"KOMPLEKSITAS ALGORITMA",kelas:"A-PG",sks:3,ruang:"F3.14",hari:"Senin",waktu:"12:00 - 14:30",dosen:"HENNY DWI BHAKTI, S.SI., M.Si."},
-    {kode:"2406025334",matkul:"HUMAN COMPUTER INTERACTION",kelas:"A-PG",sks:3,ruang:"D2.11",hari:"Kamis",waktu:"12:50 - 15:20",dosen:"PUTRI AISYIYAH RAKHMA DEVI, S.Pd., M.Kom"}
+    {kode:"2406023322",matkul:"KOMPLEKSITAS ALGORITMA",kelas:"A-PG",sks:3,ruang:"D2.11",hari:"Senin",waktu:"12:00 - 14:30",dosen:"HENNY DWI BHAKTI, S.SI., M.Si."},
+    {kode:"2406025334",matkul:"HUMAN COMPUTER INTERACTION",kelas:"A-PG",sks:3,ruang:"F3.16",hari:"Kamis",waktu:"12:50 - 15:20",dosen:"PUTRI AISYIYAH RAKHMA DEVI, S.Pd., M.Kom"}
   ];
 
   const ROLE_KETUA = 'ketua';
   const ROLE_BENDAHARA = 'bendahara';
   const ROLE_MAHASISWA = 'mahasiswa';
 
-  const DEFAULT_MATERIALS = [
-    {id:1,title:'Algoritma dan Pemrograman - Bab 5',course:'Algoritma',type:'pdf',size:'2.4 MB',date:'2 hari lalu',filename:'algo_bab5.pdf'},
-    {id:2,title:'Basis Data - Normalisasi',course:'Basis Data',type:'ppt',size:'5.1 MB',date:'4 hari lalu',filename:'normalisasi.pptx'},
-    {id:3,title:'Rekayasa Perangkat Lunak - UML',course:'RPL',type:'doc',size:'1.8 MB',date:'1 minggu lalu',filename:'uml_diagram.docx'}
-  ];
-  const DEFAULT_TASKS = [
-    {id:1,title:'Tugas Algoritma - Sorting',course:'Algoritma',deadline:'2025-10-18T20:00'},
-    {id:2,title:'Laporan Basis Data',course:'Basis Data',deadline:'2025-10-20T23:59'},
-    {id:3,title:'Presentasi RPL',course:'RPL',deadline:'2025-10-22T14:00'}
-  ];
-  const DEFAULT_KAS = [];
-
-  // UI elements
   const loginOverlay = document.getElementById('loginOverlay');
   const uploadOverlay = document.getElementById('uploadOverlay');
   const btnLogin = document.getElementById('btnLogin');
@@ -581,7 +557,13 @@
   const loginPass = document.getElementById('loginPass');
   const appContainer = document.getElementById('app');
 
-  // Initialize DB
+  let materialsCache = {};
+  let tasksCache = {};
+  let kasCache = {};
+  let taskStatusCache = {};
+  let currentFilterDashboard = 'all';
+  let currentFilterMateri = 'all';
+
   async function ensureDefaults(){
     const usersSnap = await get(child(ref(db), 'users'));
     if(!usersSnap.exists()){
@@ -596,34 +578,40 @@
       }
       await set(ref(db,'users'), usersObj);
     }
+    
+    const kasSnap = await get(child(ref(db),'kas'));
+    if(!kasSnap.exists()){
+      const kasObj = {};
+      let id = 1;
+      for(const nim in seedNames){
+        kasObj[id] = {
+          id: id,
+          nim: nim,
+          name: seedNames[nim],
+          amount: 10000,
+          paid: false,
+          createdAt: new Date().toISOString()
+        };
+        id++;
+      }
+      await set(ref(db,'kas'), kasObj);
+    }
+    
     const matsSnap = await get(child(ref(db), 'materials'));
-    if(!matsSnap.exists()){
-      const obj = {};
-      DEFAULT_MATERIALS.forEach(m => { obj[m.id] = m; });
-      await set(ref(db,'materials'), obj);
-    }
+    if(!matsSnap.exists()){ await set(ref(db,'materials'), {}); }
+    
     const tasksSnap = await get(child(ref(db),'tasks'));
-    if(!tasksSnap.exists()){
-      const obj = {};
-      DEFAULT_TASKS.forEach(t=>{ obj[t.id]=t; });
-      await set(ref(db,'tasks'), obj);
-    }
+    if(!tasksSnap.exists()){ await set(ref(db,'tasks'), {}); }
+    
     const tsSnap = await get(child(ref(db),'taskStatus'));
-    if(!tsSnap.exists()){
-      await set(ref(db,'taskStatus'), {} );
-    }
-    const ksSnap = await get(child(ref(db),'kas'));
-    if(!ksSnap.exists()){
-      await set(ref(db,'kas'), {});
-    }
+    if(!tsSnap.exists()){ await set(ref(db,'taskStatus'), {}); }
   }
 
-  ensureDefaults().catch(e=>console.error('ensureDefaults error',e));
+  ensureDefaults().catch(e=>console.error('Init error',e));
 
-  // AUTH
   btnLogin.addEventListener('click', doLogin);
   btnReset.addEventListener('click', async ()=> {
-    if(!confirm('Reset semua data ke kondisi awal?')) return;
+    if(!confirm('Reset semua data?')) return;
     await set(ref(db,'users'), null);
     await set(ref(db,'materials'), null);
     await set(ref(db,'tasks'), null);
@@ -637,11 +625,11 @@
     loginError.style.display='none';
     const nim = (loginNIM.value||'').trim();
     const pass = (loginPass.value||'').trim();
-    if(!nim || !pass){ loginError.innerText='Isi NIM & password.'; loginError.style.display='block'; return; }
+    if(!nim || !pass){ loginError.innerText='Isi NIM & password'; loginError.style.display='block'; return; }
     const usersSnap = await get(child(ref(db),'users/'+nim));
-    if(!usersSnap.exists()){ loginError.innerText='NIM tidak terdaftar.'; loginError.style.display='block'; return; }
+    if(!usersSnap.exists()){ loginError.innerText='NIM tidak terdaftar'; loginError.style.display='block'; return; }
     const user = usersSnap.val();
-    if(user.password !== pass){ loginError.innerText='Password salah.'; loginError.style.display='block'; return; }
+    if(user.password !== pass){ loginError.innerText='Password salah'; loginError.style.display='block'; return; }
     localStorage.setItem('simalas_current', JSON.stringify(user));
     onLogin(user);
   }
@@ -654,45 +642,28 @@
     if(!user) return;
     loginOverlay.style.display='none';
     appContainer.style.display='block';
-    document.getElementById('displayRole').innerText = (user.role===ROLE_KETUA ? 'Ketua Kelas - ' : user.role===ROLE_BENDAHARA ? 'Bendahara - ' : 'Mahasiswa - ') + user.name;
+    document.getElementById('displayRole').innerText = (user.role===ROLE_KETUA ? 'Ketua - ' : user.role===ROLE_BENDAHARA ? 'Bendahara - ' : 'Mahasiswa - ') + user.name;
     document.getElementById('displayUser').innerText = 'NIM: ' + user.nim;
     document.getElementById('displayAvatar').innerText = user.name ? user.name.split(' ').map(x=>x[0]).slice(0,2).join('') : '';
     const isAdmin = (user.role===ROLE_KETUA || user.role===ROLE_BENDAHARA);
-    document.getElementById('tabChangePass').style.display = isAdmin ? 'inline-block' : 'none';
-    document.getElementById('tabLogout').style.display = 'inline-block';
     document.getElementById('btnTopUpload').style.display = isAdmin ? 'inline-block' : 'none';
     document.getElementById('btnUploadPage').style.display = isAdmin ? 'inline-block' : 'none';
     document.getElementById('btnAddTugas').style.display = isAdmin ? 'inline-block' : 'none';
+    document.getElementById('btnAddKas').style.display = isAdmin ? 'inline-block' : 'none';
     renderJadwal();
     setupRealtimeListeners();
   }
 
-  let materialsCache = {};
-  let tasksCache = {};
-  let kasCache = {};
-  let taskStatusCache = {};
-
   function setupRealtimeListeners(){
-    onValue(ref(db,'materials'), (snap)=>{
-      materialsCache = snap.val() || {};
-      renderMaterials();
-      renderStats();
+    onValue(ref(db,'materials'), (snap)=>{ 
+      materialsCache = snap.val() || {}; 
+      updateCourseFilters();
+      renderMaterials(); 
+      renderStats(); 
     });
-    onValue(ref(db,'tasks'), (snap)=>{
-      tasksCache = snap.val() || {};
-      renderTasks();
-      renderStats();
-    });
-    onValue(ref(db,'kas'), (snap)=>{
-      kasCache = snap.val() || {};
-      renderKas();
-      renderStats();
-    });
-    onValue(ref(db,'taskStatus'), (snap)=>{
-      taskStatusCache = snap.val() || {};
-      renderTasks();
-      renderStats();
-    });
+    onValue(ref(db,'tasks'), (snap)=>{ tasksCache = snap.val() || {}; renderTasks(); renderStats(); });
+    onValue(ref(db,'kas'), (snap)=>{ kasCache = snap.val() || {}; renderKas(); renderStats(); });
+    onValue(ref(db,'taskStatus'), (snap)=>{ taskStatusCache = snap.val() || {}; renderTasks(); renderStats(); });
   }
 
   function showSection(id){
@@ -705,84 +676,140 @@
     if(target) target.classList.add('active'); else navs[0].classList.add('active');
   }
 
-  // Render Jadwal Kuliah
+  function updateCourseFilters(){
+    const mats = Object.values(materialsCache || {});
+    const courses = new Set();
+    
+    mats.forEach(m => {
+      if(m.scope === 'specific' && m.course){
+        courses.add(m.course);
+      }
+    });
+    
+    const sortedCourses = Array.from(courses).sort();
+    
+    const filterDashboard = document.getElementById('filterDashboard');
+    const filterMateri = document.getElementById('filterMateri');
+    
+    const optionsHTML = '<option value="all">📚 Semua Mata Kuliah</option>' + 
+      sortedCourses.map(c => `<option value="${escapeHtml(c)}">📖 ${escapeHtml(c)}</option>`).join('');
+    
+    if(filterDashboard){
+      const currentVal = filterDashboard.value;
+      filterDashboard.innerHTML = optionsHTML;
+      if(sortedCourses.includes(currentVal)){
+        filterDashboard.value = currentVal;
+      }
+    }
+    
+    if(filterMateri){
+      const currentVal = filterMateri.value;
+      filterMateri.innerHTML = optionsHTML;
+      if(sortedCourses.includes(currentVal)){
+        filterMateri.value = currentVal;
+      }
+    }
+  }
+
+  window.applyFilterDashboard = function(){
+    currentFilterDashboard = document.getElementById('filterDashboard').value;
+    renderMaterialsPreview();
+  };
+
+  window.applyFilterMateri = function(){
+    currentFilterMateri = document.getElementById('filterMateri').value;
+    renderMaterialsList();
+  };
+
+  function getFilteredMaterials(filterValue){
+    const mats = Object.values(materialsCache || {}).sort((a,b)=> (b.id||0)-(a.id||0));
+    if(filterValue === 'all'){
+      return mats;
+    }
+    return mats.filter(m => {
+      if(m.scope === 'all') return true;
+      if(m.scope === 'specific' && m.course === filterValue) return true;
+      return false;
+    });
+  }
+
   function renderJadwal(){
     const table = document.getElementById('jadwalTable');
     const totalSKS = JADWAL_KULIAH.reduce((sum, j) => sum + j.sks, 0);
     document.getElementById('totalSKS').innerText = `${totalSKS} SKS`;
-    
     const dayOrder = {Senin:1, Selasa:2, Rabu:3, Kamis:4, Jumat:5, Sabtu:6, Minggu:7};
     const sorted = [...JADWAL_KULIAH].sort((a,b) => dayOrder[a.hari] - dayOrder[b.hari]);
-    
-    let html = `
-      <thead>
-        <tr>
-          <th>No</th>
-          <th>Kode</th>
-          <th>Mata Kuliah</th>
-          <th>Kelas</th>
-          <th>SKS</th>
-          <th>Ruang</th>
-          <th>Hari & Waktu</th>
-          <th>Dosen</th>
-        </tr>
-      </thead>
-      <tbody>
-    `;
-    
+    let html = '<thead><tr><th>No</th><th>Kode</th><th>Mata Kuliah</th><th>Kelas</th><th>SKS</th><th>Ruang</th><th>Hari & Waktu</th><th>Dosen</th></tr></thead><tbody>';
     sorted.forEach((j, idx) => {
-      html += `
-        <tr>
-          <td>${idx + 1}</td>
-          <td style="font-size:0.75rem;color:#64748b">${j.kode}</td>
-          <td><strong>${escapeHtml(j.matkul)}</strong></td>
-          <td>${j.kelas}</td>
-          <td><span class="jadwal-sks">${j.sks}</span></td>
-          <td>${j.ruang}</td>
-          <td>
-            <div class="jadwal-day">${j.hari}</div>
-            <div class="jadwal-time"><i class="fas fa-clock"></i> ${j.waktu}</div>
-          </td>
-          <td style="font-size:0.8rem">${escapeHtml(j.dosen)}</td>
-        </tr>
-      `;
+      html += `<tr><td>${idx + 1}</td><td style="font-size:0.75rem;color:#64748b">${j.kode}</td><td><strong>${escapeHtml(j.matkul)}</strong></td><td>${j.kelas}</td><td><span class="jadwal-sks">${j.sks}</span></td><td>${j.ruang}</td><td><div class="jadwal-day">${j.hari}</div><div class="jadwal-time"><i class="fas fa-clock"></i> ${j.waktu}</div></td><td style="font-size:0.8rem">${escapeHtml(j.dosen)}</td></tr>`;
     });
-    
-    html += `</tbody>`;
+    html += '</tbody>';
     table.innerHTML = html;
   }
 
   function renderMaterials(){
-    const mats = Object.values(materialsCache || {}).sort((a,b)=> (b.id||0)-(a.id||0));
+    renderMaterialsPreview();
+    renderMaterialsList();
+  }
+
+  function renderMaterialsPreview(){
+    const mats = getFilteredMaterials(currentFilterDashboard);
     const preview = document.getElementById('materiPreview');
+    const cur = getCurrentLocal();
+    const isAdmin = cur && (cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA);
+
+    const html = mats.slice(0, 5).map(m => createMaterialHTML(m, isAdmin)).join('');
+    preview.innerHTML = html || '<p style="color:#64748b;text-align:center">Belum ada materi</p>';
+  }
+
+  function renderMaterialsList(){
+    const mats = getFilteredMaterials(currentFilterMateri);
     const pageList = document.getElementById('materiList');
     const cur = getCurrentLocal();
     const isAdmin = cur && (cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA);
 
-    const html = mats.map(m => {
-      let iconType = 'file';
-      if(m.type === 'pdf') iconType = 'file-pdf';
-      else if(m.type === 'doc') iconType = 'file-word';
-      else if(m.type === 'ppt') iconType = 'file-powerpoint';
-      else if(m.type === 'xls') iconType = 'file-excel';
-      else if(m.type === 'zip') iconType = 'file-zipper';
-      
-      return `
-      <div class="material-item">
-        <div class="material-icon ${m.type || 'doc'}"><i class="fas fa-${iconType}"></i></div>
-        <div class="material-info">
-          <div class="material-title">${escapeHtml(m.title)}</div>
-          <div class="material-meta">${m.date || '-'} • ${m.size || '-'} • ${escapeHtml(m.course || '-')}</div>
-          ${m.filename ? `<div class="material-meta" style="font-size:0.75rem;color:#94a3b8">📁 ${escapeHtml(m.filename)}</div>` : ''}
-        </div>
-        <div class="material-actions">
-          <button class="btn btn-primary btn-sm" onclick="downloadMaterial(${m.id})" title="Download file"><i class="fas fa-download"></i> Download</button>
-          ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="confirmDeleteMaterial(${m.id})" title="Hapus materi"><i class="fas fa-trash"></i></button>` : ''}
-        </div>
-      </div>
-    `}).join('');
-    preview.innerHTML = html || '<p style="color:#64748b;text-align:center">Belum ada materi</p>';
+    const html = mats.map(m => createMaterialHTML(m, isAdmin)).join('');
     pageList.innerHTML = html || '<p style="color:#64748b;text-align:center">Belum ada materi</p>';
+  }
+
+  function createMaterialHTML(m, isAdmin){
+    let iconType = 'file', iconClass = 'doc';
+    
+    if(m.uploadType === 'link'){
+      iconType = 'link';
+      iconClass = 'link';
+    } else if(m.uploadType === 'file'){
+      if(m.type === 'pdf'){ iconType = 'file-pdf'; iconClass = 'pdf'; }
+      else if(m.type === 'doc'){ iconType = 'file-word'; iconClass = 'doc'; }
+      else if(m.type === 'ppt'){ iconType = 'file-powerpoint'; iconClass = 'ppt'; }
+      else if(m.type === 'xls'){ iconType = 'file-excel'; iconClass = 'xls'; }
+      else if(m.type === 'zip'){ iconType = 'file-zipper'; iconClass = 'zip'; }
+      else{ iconType = 'file'; iconClass = 'doc'; }
+    } else {
+      if(m.type === 'pdf'){ iconType = 'file-pdf'; iconClass = 'pdf'; }
+      else if(m.type === 'doc'){ iconType = 'file-word'; iconClass = 'doc'; }
+      else if(m.type === 'ppt'){ iconType = 'file-powerpoint'; iconClass = 'ppt'; }
+      else if(m.type === 'xls'){ iconType = 'file-excel'; iconClass = 'xls'; }
+      else if(m.type === 'zip'){ iconType = 'file-zipper'; iconClass = 'zip'; }
+    }
+    
+    const courseText = m.scope === 'all' ? '📚 Semua Mata Kuliah' : `📖 ${escapeHtml(m.course || '-')}`;
+    const btnText = m.uploadType === 'link' ? '<i class="fas fa-external-link-alt"></i> Buka Link' : '<i class="fas fa-download"></i> Download';
+    
+    return `
+    <div class="material-item">
+      <div class="material-icon ${iconClass}"><i class="fas fa-${iconType}"></i></div>
+      <div class="material-info">
+        <div class="material-title">${escapeHtml(m.title)}</div>
+        <div class="material-meta">${m.date || '-'} • ${courseText}</div>
+        ${m.uploadType === 'file' && m.filename ? `<div class="material-meta" style="font-size:0.75rem;color:#94a3b8">📁 ${escapeHtml(m.filename)} • ${m.size || '-'}</div>` : ''}
+        ${m.uploadType === 'link' && m.link ? `<div class="material-meta" style="font-size:0.75rem;color:#94a3b8">🔗 ${escapeHtml(m.link.substring(0, 50))}...</div>` : ''}
+      </div>
+      <div class="material-actions">
+        <button class="btn btn-primary btn-sm" onclick="accessMaterial(${m.id})">${btnText}</button>
+        ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="confirmDeleteMaterial(${m.id})"><i class="fas fa-trash"></i></button>` : ''}
+      </div>
+    </div>`;
   }
 
   function renderTasks(){
@@ -812,19 +839,12 @@
           </div>
           <div style="margin-top:10px">
             <div class="task-deadline ${urgent && !done ? 'urgent' : ''} ${done ? 'completed' : ''}">
-              <i class="fas fa-clock"></i> 
-              ${done ? 'Selesai' : formatDeadlineDetailed(d)}
+              <i class="fas fa-clock"></i> ${done ? 'Selesai' : formatDeadlineDetailed(d)}
             </div>
-            ${t.submissionLink ? `<a href="${t.submissionLink}" target="_blank" class="task-link"><i class="fas fa-link"></i> Buka Link Pengumpulan</a>` : ''}
+            ${t.submissionLink ? `<a href="${t.submissionLink}" target="_blank" class="task-link"><i class="fas fa-link"></i> Buka Link</a>` : ''}
           </div>
-          ${isAdmin ? `
-            <div class="task-actions">
-              <button class="btn btn-primary btn-sm" onclick="openEditTask(${t.id})"><i class="fas fa-edit"></i> Edit Tugas</button>
-              <button class="btn btn-danger btn-sm" onclick="confirmDeleteTask(${t.id})"><i class="fas fa-trash"></i> Hapus</button>
-            </div>
-          ` : ''}
-        </div>
-      `;
+          ${isAdmin ? `<div class="task-actions"><button class="btn btn-primary btn-sm" onclick="openEditTask(${t.id})"><i class="fas fa-edit"></i> Edit</button><button class="btn btn-danger btn-sm" onclick="confirmDeleteTask(${t.id})"><i class="fas fa-trash"></i> Hapus</button></div>` : ''}
+        </div>`;
     }).join('');
     list.innerHTML = html || '<p style="color:#64748b;text-align:center">Belum ada tugas</p>';
     
@@ -834,42 +854,38 @@
   }
 
   function renderKas(){
-    const ks = Object.values(kasCache || {}).sort((a,b)=> (a.id||0)-(b.id||0));
+    const ks = Object.values(kasCache || {}).sort((a,b)=> (a.name||'').localeCompare(b.name||''));
     const list = document.getElementById('kasList');
     const cur = getCurrentLocal();
     const isAdmin = cur && (cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA);
     
     const totalPaid = ks.filter(k=>k.paid).reduce((sum, k) => sum + (k.amount || 0), 0);
     const totalUnpaid = ks.filter(k=>!k.paid).reduce((sum, k) => sum + (k.amount || 0), 0);
-    const totalAll = totalPaid + totalUnpaid;
     
     const html = `
       <div style="background:linear-gradient(135deg,var(--primary),var(--secondary));color:white;padding:20px;border-radius:12px;margin-bottom:15px">
         <div style="font-size:.9rem;margin-bottom:10px">Status Pembayaran Kas</div>
         <div style="font-size:1.8rem;font-weight:bold;margin-bottom:5px">${ks.filter(k=>k.paid).length}/${ks.length} Anggota</div>
-        <div style="font-size:.9rem;margin-bottom:15px">sudah membayar kas bulan ini</div>
+        <div style="font-size:.9rem;margin-bottom:15px">sudah membayar kas</div>
         <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:15px;padding-top:15px;border-top:1px solid rgba(255,255,255,0.3)">
-          <div>
-            <div style="font-size:0.8rem;opacity:0.9">Total Terkumpul</div>
-            <div style="font-size:1.3rem;font-weight:700">Rp ${formatRupiah(totalPaid)}</div>
-          </div>
-          <div>
-            <div style="font-size:0.8rem;opacity:0.9">Total Belum Bayar</div>
-            <div style="font-size:1.3rem;font-weight:700">Rp ${formatRupiah(totalUnpaid)}</div>
-          </div>
+          <div><div style="font-size:0.8rem;opacity:0.9">Terkumpul</div><div style="font-size:1.3rem;font-weight:700">Rp ${formatRupiah(totalPaid)}</div></div>
+          <div><div style="font-size:0.8rem;opacity:0.9">Belum Bayar</div><div style="font-size:1.3rem;font-weight:700">Rp ${formatRupiah(totalUnpaid)}</div></div>
         </div>
       </div>
       ${ks.map((k) => `
         <div class="kas-item">
-          <div class="kas-name"><i class="fas fa-user"></i> ${escapeHtml(k.name || 'Anggota')}</div>
+          <div class="kas-name">
+            <i class="fas fa-user"></i> ${escapeHtml(k.name || 'Anggota')}
+            ${k.nim ? `<div style="font-size:0.75rem;color:#64748b;margin-top:2px">NIM: ${k.nim}</div>` : ''}
+          </div>
           <div class="kas-amount">Rp ${formatRupiah(k.amount || 0)}</div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <span class="kas-status ${k.paid?'paid':'unpaid'}" ${isAdmin?`onclick="toggleKas(${k.id})" style="cursor:pointer"`:''}>${k.paid?'✓ Sudah Bayar':'✗ Belum Bayar'}</span>
-            ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="deleteKas(${k.id})"><i class="fas fa-trash"></i></button>` : ''}
+            ${isAdmin ? `<span class="kas-status ${k.paid?'paid':'unpaid'}" onclick="toggleKas(${k.id})" style="cursor:pointer">${k.paid?'✓ Sudah':'✗ Belum'}</span>` : `<span class="kas-status ${k.paid?'paid':'unpaid'}">${k.paid?'✓ Sudah':'✗ Belum'}</span>`}
+            ${isAdmin ? `<button class="btn btn-primary btn-sm" onclick="openEditKas(${k.id})"><i class="fas fa-edit"></i></button>` : ''}
+            ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="confirmDeleteKas(${k.id})"><i class="fas fa-trash"></i></button>` : ''}
           </div>
         </div>
       `).join('')}
-      ${isAdmin ? `<button class="btn btn-success" onclick="openModal('modalAddKas')" style="width:100%;margin-top:15px"><i class="fas fa-plus"></i> Tambah Anggota Kas</button>` : ''}
     `;
     list.innerHTML = html;
   }
@@ -888,118 +904,152 @@
     document.getElementById('statKas').innerText = (ks.length && ks.filter(k=>k.paid).length === ks.length) ? 'Lunas' : 'Belum Lunas';
   }
 
-  // DOWNLOAD MATERIAL
-  window.downloadMaterial = async function(id){
-    const mat = materialsCache[id];
-    if(!mat){ alert('Materi tidak ditemukan'); return; }
-    
-    if(mat.downloadURL){
-      try {
-        const a = document.createElement('a');
-        a.href = mat.downloadURL;
-        a.download = mat.filename || 'file';
-        a.target = '_blank';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        alert('✅ File sedang didownload!');
-      } catch(err){
-        console.error('Download error:', err);
-        alert('❌ Gagal download file: ' + err.message);
-      }
+  window.toggleCourseField = function(){
+    const scope = document.getElementById('uploadScope').value;
+    const courseGroup = document.getElementById('courseGroup');
+    const courseInput = document.getElementById('uploadCourse');
+    if(scope === 'specific'){
+      courseGroup.style.display = 'block';
+      courseInput.required = true;
     } else {
-      alert('❌ File tidak tersedia untuk didownload');
+      courseGroup.style.display = 'none';
+      courseInput.required = false;
+      courseInput.value = '';
     }
   };
 
-  // UPLOAD MATERIAL
+  window.toggleUploadType = function(){
+    const type = document.getElementById('uploadType').value;
+    const fileGroup = document.getElementById('fileGroup');
+    const linkGroup = document.getElementById('linkGroup');
+    const fileInput = document.getElementById('uploadFile');
+    const linkInput = document.getElementById('uploadLink');
+    
+    if(type === 'file'){
+      fileGroup.style.display = 'block';
+      linkGroup.style.display = 'none';
+      fileInput.required = true;
+      linkInput.required = false;
+    } else {
+      fileGroup.style.display = 'none';
+      linkGroup.style.display = 'block';
+      fileInput.required = false;
+      linkInput.required = true;
+    }
+  };
+
+  window.accessMaterial = async function(id){
+    const mat = materialsCache[id];
+    if(!mat){ alert('Materi tidak ditemukan'); return; }
+    
+    if(mat.uploadType === 'link' || mat.link){
+      window.open(mat.link, '_blank');
+    } else if(mat.uploadType === 'file' || mat.downloadURL){
+      if(mat.downloadURL){
+        window.open(mat.downloadURL, '_blank');
+      } else {
+        alert('File tidak tersedia');
+      }
+    } else {
+      alert('Materi tidak dapat diakses');
+    }
+  };
+
   async function handleUpload(e){
     e.preventDefault();
     const cur = getCurrentLocal();
     if(!cur || !(cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
     
+    const scope = document.getElementById('uploadScope').value;
     const course = document.getElementById('uploadCourse').value.trim();
     const title = document.getElementById('uploadTitle').value.trim();
-    const fileInput = document.getElementById('uploadFile');
-    const file = fileInput.files[0];
+    const uploadType = document.getElementById('uploadType').value;
     
-    if(!course || !title || !file){ alert('Lengkapi semua field'); return; }
+    if(!title){ alert('Isi judul materi'); return; }
+    if(scope === 'specific' && !course){ alert('Isi nama mata kuliah'); return; }
     
-    if(file.size > 50 * 1024 * 1024){ 
-      alert('File terlalu besar! Maksimal 50MB'); 
-      return; 
-    }
-
     const btnSubmit = document.getElementById('btnUploadSubmit');
     btnSubmit.disabled = true;
-    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-    
     uploadOverlay.classList.add('active');
     closeModal('modalUpload');
 
     try {
-      const ext = file.name.split('.').pop().toLowerCase();
-      let type='doc'; 
-      if(ext==='pdf') type='pdf'; 
-      else if(ext.includes('ppt')) type='ppt';
-      else if(ext.includes('xls')) type='xls';
-      else if(ext==='zip' || ext==='rar') type='zip';
-      
-      const size = (file.size/(1024*1024)).toFixed(2)+' MB';
-
       const matsSnap = await get(child(ref(db),'materials'));
       const mats = matsSnap.exists()? matsSnap.val() : {};
       const newId = (Object.keys(mats).length? Math.max(...Object.keys(mats).map(x=>parseInt(x))) : 0) + 1;
       
-      const timestamp = Date.now();
-      const safeFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-      const storagePath = `materials/${timestamp}_${newId}_${safeFilename}`;
-      const storageRef = sref(storage, storagePath);
-      
-      const metadata = {
-        contentType: file.type,
-        customMetadata: {
-          'uploadedBy': cur.nim,
-          'originalName': file.name,
-          'courseTitle': title
-        }
-      };
-      
-      await uploadBytes(storageRef, file, metadata);
-      const downloadURL = await getDownloadURL(storageRef);
-      
-      const meta = {
+      let meta = {
         id: newId,
         title,
-        course,
-        type,
-        size,
+        scope,
+        course: scope === 'specific' ? course : null,
+        uploadType,
         date: 'Baru saja',
-        filename: file.name,
-        downloadURL: downloadURL,
-        storagePath: storagePath,
         uploadedBy: cur.nim,
         uploadedAt: new Date().toISOString()
       };
+
+      if(uploadType === 'file'){
+        const fileInput = document.getElementById('uploadFile');
+        const file = fileInput.files[0];
+        if(!file){ alert('Pilih file'); btnSubmit.disabled=false; uploadOverlay.classList.remove('active'); return; }
+        if(file.size > 50 * 1024 * 1024){ alert('File max 50MB'); btnSubmit.disabled=false; uploadOverlay.classList.remove('active'); return; }
+        
+        const ext = file.name.split('.').pop().toLowerCase();
+        let type='doc'; 
+        if(ext==='pdf') type='pdf'; 
+        else if(ext.includes('ppt')) type='ppt';
+        else if(ext.includes('xls')) type='xls';
+        else if(ext==='zip' || ext==='rar') type='zip';
+        
+        const size = (file.size/(1024*1024)).toFixed(2)+' MB';
+        const timestamp = Date.now();
+        const safeFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const storagePath = `materials/${timestamp}_${newId}_${safeFilename}`;
+        const storageRef = sref(storage, storagePath);
+        
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+        
+        meta.type = type;
+        meta.size = size;
+        meta.filename = file.name;
+        meta.downloadURL = downloadURL;
+        meta.storagePath = storagePath;
+      } else {
+        const link = document.getElementById('uploadLink').value.trim();
+        if(!link){ alert('Isi link materi'); btnSubmit.disabled=false; uploadOverlay.classList.remove('active'); return; }
+        
+        try {
+          new URL(link);
+        } catch(e) {
+          alert('Link tidak valid. Gunakan format: https://...');
+          btnSubmit.disabled=false;
+          uploadOverlay.classList.remove('active');
+          return;
+        }
+        
+        meta.link = link;
+        meta.type = 'link';
+      }
       
       await set(ref(db, `materials/${newId}`), meta);
-      
       document.getElementById('formUpload').reset();
-      alert('✅ Materi berhasil diupload! File dapat didownload oleh semua anggota.');
+      toggleCourseField();
+      toggleUploadType();
+      alert('✅ Materi berhasil ditambahkan!');
       
     } catch(err){
       console.error('Upload error:', err);
       alert('❌ Gagal upload: ' + err.message);
     } finally {
       btnSubmit.disabled = false;
-      btnSubmit.innerHTML = '<i class="fas fa-upload"></i> Upload';
       uploadOverlay.classList.remove('active');
     }
   }
 
-  // DELETE MATERIAL
   window.confirmDeleteMaterial = async function(id){
-    if(!confirm('Hapus materi ini? File akan dihapus permanen dari storage.')) return;
+    if(!confirm('Hapus materi ini?')) return;
     const cur = getCurrentLocal(); 
     if(!cur || !(cur.role===ROLE_KETUA||cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
     
@@ -1008,27 +1058,20 @@
       if(!matSnap.exists()){ alert('Materi tidak ditemukan'); return; }
       
       const mat = matSnap.val();
-      
       if(mat.storagePath){
         try {
           const storageRef = sref(storage, mat.storagePath);
           await deleteObject(storageRef);
-          console.log('File deleted from storage');
-        } catch(e){
-          console.log('File tidak ditemukan di storage atau sudah terhapus:', e);
-        }
+        } catch(e){ console.log('File sudah terhapus'); }
       }
       
       await set(ref(db,`materials/${id}`), null);
-      alert('✅ Materi dan file berhasil dihapus');
-      
+      alert('✅ Materi berhasil dihapus');
     } catch(err){
-      console.error('Delete error:', err);
       alert('❌ Gagal hapus: ' + err.message);
     }
   };
 
-  // ADD TASK
   async function handleAddTugas(e){
     e.preventDefault();
     const cur = getCurrentLocal();
@@ -1048,10 +1091,7 @@
       const newId = (Object.keys(tasks).length? Math.max(...Object.keys(tasks).map(x=>parseInt(x))) : 0) + 1;
       
       const newTask = {
-        id:newId, 
-        title, 
-        course, 
-        deadline,
+        id:newId, title, course, deadline,
         submissionLink: link || null,
         description: desc || null,
         createdBy:cur.nim, 
@@ -1062,25 +1102,20 @@
       closeModal('modalAddTugas'); 
       document.getElementById('formAddTugas').reset();
       alert('✅ Tugas berhasil ditambahkan');
-      
     } catch(err){
-      console.error(err);
       alert('❌ Gagal tambah tugas: ' + err.message);
     }
   }
 
-  // EDIT TASK (FULL EDIT - ALL FIELDS)
   window.openEditTask = function(id){
     const task = tasksCache[id];
     if(!task) return;
-    
     document.getElementById('editTaskId').value = id;
     document.getElementById('editTugasCourse').value = task.course || '';
     document.getElementById('editTugasTitle').value = task.title || '';
     document.getElementById('editTugasDeadline').value = task.deadline || '';
     document.getElementById('editTugasLink').value = task.submissionLink || '';
     document.getElementById('editTugasDesc').value = task.description || '';
-    
     openModal('modalEditTugas');
   };
 
@@ -1096,62 +1131,62 @@
     const link = document.getElementById('editTugasLink').value.trim();
     const desc = document.getElementById('editTugasDesc').value.trim();
     
-    if(!taskId || !course || !title || !deadline){ alert('Lengkapi semua field wajib'); return; }
+    if(!taskId || !course || !title || !deadline){ alert('Lengkapi semua field'); return; }
     
     try {
       await update(ref(db, `tasks/${taskId}`), {
-        course: course,
-        title: title,
-        deadline: deadline,
+        course, title, deadline,
         submissionLink: link || null,
         description: desc || null,
         updatedAt: new Date().toISOString(),
         updatedBy: cur.nim
       });
-      
       closeModal('modalEditTugas');
       alert('✅ Tugas berhasil diupdate');
-      
     } catch(err){
-      console.error('Edit task error:', err);
-      alert('❌ Gagal update tugas: ' + err.message);
+      alert('❌ Gagal update: ' + err.message);
     }
   }
 
-  // DELETE TASK
   window.confirmDeleteTask = async function(id){
     if(!confirm('Hapus tugas ini?')) return;
     const cur = getCurrentLocal(); 
     if(!cur || !(cur.role===ROLE_KETUA||cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
-    
     try {
       await set(ref(db,`tasks/${id}`), null);
       await set(ref(db,`taskStatus/${id}`), null);
       alert('✅ Tugas berhasil dihapus');
     } catch(err){
-      alert('❌ Gagal hapus tugas: ' + err.message);
+      alert('❌ Gagal hapus: ' + err.message);
     }
   };
 
-  // TOGGLE TASK
   window.toggleTask = async function(taskId){
     const cur = getCurrentLocal(); 
     if(!cur){ alert('Silakan login'); return; }
-    
     const path = `taskStatus/${taskId}/${cur.nim}`;
     const snap = await get(child(ref(db), path));
     const newVal = !(snap.exists() && snap.val());
     await set(ref(db, path), newVal ? true : null);
   };
 
-  // ADD KAS
+  window.openEditKas = function(id){
+    const kas = kasCache[id];
+    if(!kas) return;
+    document.getElementById('editKasId').value = id;
+    document.getElementById('editKasName').value = kas.name || '';
+    document.getElementById('editKasAmount').value = kas.amount || 10000;
+    openModal('modalEditKas');
+  };
+
   async function handleAddKas(e){
     e.preventDefault();
     const cur = getCurrentLocal();
     if(!cur || !(cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
     
-    const name = document.getElementById('kasName').value.trim();
-    const amount = parseInt(document.getElementById('kasAmount').value);
+    const nim = document.getElementById('addKasNIM').value.trim();
+    const name = document.getElementById('addKasName').value.trim();
+    const amount = parseInt(document.getElementById('addKasAmount').value);
     
     if(!name || !amount || amount < 1000){ alert('Lengkapi data kas dengan benar'); return; }
     
@@ -1162,6 +1197,7 @@
       
       const newKas = {
         id: newId,
+        nim: nim || null,
         name: name,
         amount: amount,
         paid: false,
@@ -1171,35 +1207,55 @@
       await set(ref(db, `kas/${newId}`), newKas);
       closeModal('modalAddKas');
       document.getElementById('formAddKas').reset();
+      document.getElementById('addKasAmount').value = '10000';
       alert('✅ Anggota kas berhasil ditambahkan');
-      
     } catch(err){
+      console.error('Error add kas:', err);
       alert('❌ Gagal tambah anggota: ' + err.message);
     }
   }
 
-  // TOGGLE KAS
-  window.toggleKas = async function(id){
+  async function handleEditKas(e){
+    e.preventDefault();
     const cur = getCurrentLocal();
     if(!cur || !(cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
     
+    const kasId = document.getElementById('editKasId').value;
+    const name = document.getElementById('editKasName').value.trim();
+    const amount = parseInt(document.getElementById('editKasAmount').value);
+    
+    if(!kasId || !name || !amount || amount < 1000){ alert('Lengkapi data dengan benar'); return; }
+    
+    try {
+      await update(ref(db, `kas/${kasId}`), {
+        name: name,
+        amount: amount,
+        updatedAt: new Date().toISOString()
+      });
+      closeModal('modalEditKas');
+      alert('✅ Kas berhasil diupdate');
+    } catch(err){
+      alert('❌ Gagal update: ' + err.message);
+    }
+  }
+
+  window.toggleKas = async function(id){
+    const cur = getCurrentLocal();
+    if(!cur || !(cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
     try {
       const ksSnap = await get(child(ref(db),'kas/'+id));
       if(!ksSnap.exists()) return;
       const k = ksSnap.val();
       await set(ref(db,'kas/'+id+'/paid'), !k.paid);
     } catch(err){
-      alert('❌ Gagal update kas: ' + err.message);
+      alert('❌ Gagal update: ' + err.message);
     }
   };
 
-  // DELETE KAS
-  window.deleteKas = async function(id){
+  window.confirmDeleteKas = async function(id){
+    if(!confirm('Hapus anggota kas ini?')) return;
     const cur = getCurrentLocal();
     if(!cur || !(cur.role===ROLE_KETUA || cur.role===ROLE_BENDAHARA)){ alert('Akses ditolak'); return; }
-    
-    if(!confirm('Hapus anggota kas ini?')) return;
-    
     try {
       await set(ref(db,`kas/${id}`), null);
       alert('✅ Anggota kas berhasil dihapus');
@@ -1208,12 +1264,10 @@
     }
   };
 
-  // CHANGE PASSWORD
   async function handleChangePass(e){
     e.preventDefault();
     const cur = getCurrentLocal(); 
     if(!cur) return alert('Silakan login');
-    if(!(cur.role===ROLE_KETUA||cur.role===ROLE_BENDAHARA)) return alert('Akses ditolak');
     
     const oldP = document.getElementById('oldPass').value;
     const newP = document.getElementById('newPass').value;
@@ -1225,41 +1279,30 @@
     try {
       const userSnap = await get(child(ref(db),`users/${cur.nim}`));
       if(!userSnap.exists()) return alert('User tidak ditemukan');
-      
       const user = userSnap.val();
       if(user.password !== oldP) return alert('Password lama salah');
-      
       await update(ref(db,`users/${cur.nim}`), { password: newP });
-      
       cur.password = newP; 
       localStorage.setItem('simalas_current', JSON.stringify(cur));
-      
       closeModal('modalChangePass');
       alert('✅ Password berhasil diubah');
-      
-      document.getElementById('oldPass').value=''; 
-      document.getElementById('newPass').value=''; 
-      document.getElementById('confPass').value='';
-      
+      document.getElementById('formChangePass').reset();
     } catch(err){
-      console.error('Password change error:', err);
       alert('❌ Gagal ubah password: ' + err.message);
     }
   }
 
-  // LOGOUT
   function doLogout(){
     if(!confirm('Logout sekarang?')) return;
     clearCurrentLocal();
     location.reload();
   }
 
-  // EXPORT KAS
   function exportKas(){
     const ks = Object.values(kasCache || {});
-    let csv = 'No,Nama,Nominal,Status\n';
+    let csv = 'No,NIM,Nama,Nominal,Status\n';
     ks.forEach((k, idx) => {
-      csv += `"${idx + 1}","${k.name || 'Anggota'}","Rp ${formatRupiah(k.amount || 0)}","${k.paid ? 'Sudah Bayar' : 'Belum Bayar'}"\n`;
+      csv += `"${idx + 1}","${k.nim || '-'}","${k.name || 'Anggota'}","Rp ${formatRupiah(k.amount || 0)}","${k.paid ? 'Sudah Bayar' : 'Belum Bayar'}"\n`;
     });
     const blob = new Blob([csv], {type:'text/csv'}); 
     const url = URL.createObjectURL(blob);
@@ -1269,31 +1312,12 @@
     URL.revokeObjectURL(url);
   }
 
-  // UTILITIES
-  function formatDeadline(d){
-    const now = new Date(); 
-    const diff = d - now; 
-    const days = Math.ceil(diff/(1000*60*60*24));
-    if(days < 0) return 'Terlambat'; 
-    if(days===0) return 'Hari ini'; 
-    if(days===1) return 'Besok'; 
-    return `${days} hari lagi`;
-  }
-
   function formatDeadlineDetailed(d){
     const now = new Date();
     const diff = d - now;
     const days = Math.ceil(diff/(1000*60*60*24));
-    
-    const options = { 
-      day: 'numeric', 
-      month: 'short', 
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    };
+    const options = { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
     const dateStr = d.toLocaleDateString('id-ID', options);
-    
     if(days < 0) return `Terlambat (${dateStr})`;
     if(days === 0) return `Hari ini - ${dateStr}`;
     if(days === 1) return `Besok - ${dateStr}`;
@@ -1318,7 +1342,6 @@
     if(modal) modal.classList.remove('active'); 
   }
 
-  // INIT ON LOAD
   window.addEventListener('DOMContentLoaded', async ()=>{
     const cur = getCurrentLocal();
     if(cur){
@@ -1329,14 +1352,12 @@
     }
   });
 
-  // CLOSE MODAL ON OUTSIDE CLICK
   window.onclick = function(e){
     if(e.target.classList && e.target.classList.contains('modal')) {
       e.target.classList.remove('active');
     }
   };
 
-  // KEYBOARD SHORTCUTS
   document.addEventListener('keydown', function(e){
     if(e.key === 'Escape'){
       document.querySelectorAll('.modal.active').forEach(m => m.classList.remove('active'));
@@ -1349,24 +1370,24 @@
     }
   });
 
-  // MAKE FUNCTIONS GLOBAL
   window.showSection = showSection;
   window.handleUpload = handleUpload;
   window.handleAddTugas = handleAddTugas;
   window.handleEditTugas = handleEditTugas;
   window.handleAddKas = handleAddKas;
+  window.handleEditKas = handleEditKas;
   window.handleChangePass = handleChangePass;
   window.openModal = openModal;
   window.closeModal = closeModal;
   window.doLogout = doLogout;
   window.exportKas = exportKas;
 
-  // CONSOLE WELCOME
-  console.log('%c🎓 SIMALAS - Sistem Manajemen Kelas', 'color: #2563eb; font-size: 20px; font-weight: bold;');
-  console.log('%c✅ System loaded successfully!', 'color: #10b981; font-size: 14px;');
-  console.log('%c📅 NEW: Jadwal Kuliah Menu Added!', 'color: #f59e0b; font-size: 14px; font-weight: bold;');
-  console.log('%c✏️ NEW: Full Task Edit Feature!', 'color: #f59e0b; font-size: 14px; font-weight: bold;');
-  console.log('%c📤 Upload max: 50MB | Download: Real files from Firebase Storage', 'color: #64748b; font-size: 12px;');
+  console.log('%c🎓 SIMALAS Enhanced v2', 'color: #2563eb; font-size: 20px; font-weight: bold;');
+  console.log('%c✅ All features loaded!', 'color: #10b981; font-size: 14px;');
+  console.log('%c🔗 Upload FILE or LINK', 'color: #f59e0b; font-size: 14px; font-weight: bold;');
+  console.log('%c📚 Scope (All/Specific Course)', 'color: #f59e0b; font-size: 14px; font-weight: bold;');
+  console.log('%c💰 Add Members with Name & Amount', 'color: #f59e0b; font-size: 14px; font-weight: bold;');
+  console.log('%c🔐 Change Password for ALL users', 'color: #f59e0b; font-size: 14px; font-weight: bold;');
   console.log('%cDemo Accounts:', 'color: #64748b; font-size: 12px;');
   console.log('%c  • Ketua: 240602010 / ketua123', 'color: #64748b; font-size: 11px;');
   console.log('%c  • Bendahara: 240602009 / bendahara123', 'color: #64748b; font-size: 11px;');
@@ -1375,4 +1396,3 @@
 </script>
 </body>
 </html>
-
