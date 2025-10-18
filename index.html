@@ -691,8 +691,8 @@
     const filterDashboard = document.getElementById('filterDashboard');
     const filterMateri = document.getElementById('filterMateri');
     
-    const optionsHTML = '<option value="all">📚 Semua Mata Kuliah</option>' + 
-      sortedCourses.map(c => `<option value="${escapeHtml(c)}">📖 ${escapeHtml(c)}</option>`).join('');
+    const optionsHTML = '<option value="all">Semua Mata Kuliah</option>' + 
+      sortedCourses.map(c => `<option value="${escapeHtml(c)}"> ${escapeHtml(c)}</option>`).join('');
     
     if(filterDashboard){
       const currentVal = filterDashboard.value;
@@ -793,7 +793,7 @@
       else if(m.type === 'zip'){ iconType = 'file-zipper'; iconClass = 'zip'; }
     }
     
-    const courseText = m.scope === 'all' ? '📚 Semua Mata Kuliah' : `📖 ${escapeHtml(m.course || '-')}`;
+    const courseText = m.scope === 'all' ? 'Semua Mata Kuliah' : `${escapeHtml(m.course || '-')}`;
     const btnText = m.uploadType === 'link' ? '<i class="fas fa-external-link-alt"></i> Buka Link' : '<i class="fas fa-download"></i> Download';
     
     return `
@@ -1396,3 +1396,4 @@
 </script>
 </body>
 </html>
+
