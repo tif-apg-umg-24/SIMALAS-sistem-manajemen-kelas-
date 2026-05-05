@@ -1,7 +1,7 @@
 <!DOCTYPE html> 
 <html lang="id">
 <head>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>SIMALAS - Sistem Manajemen Kelas Enhanced v3.0</title>
@@ -436,8 +436,8 @@
           <span>Login</span>
         </button>
         <button id="btnReset" class="btn btn-light" title="Reset Semua Data (Khusus Ketua)" style="flex:0 0 auto;display:none">
-          <i class="fas fa-rotate-left"></i>
-        </button>
+  <i class="fas fa-rotate-left"></i>
+</button>
       </div>
       <div id="loginError" class="error-text">NIM atau password salah.</div>
     </div>
@@ -954,8 +954,26 @@
     }
   }
 
+  const SALT_ROUNDS = 10;
+
+async function hashPass(plain) {
+  const bcrypt = dcodeIO.bcrypt;
+  const salt = await bcrypt.genSalt(SALT_ROUNDS);
+  return await bcrypt.hash(plain, salt);
+}
+
+async function checkPass(plain, hashed) {
+  return await dcodeIO.bcrypt.compare(plain, hashed);
+}
+
   async function ensureDefaults(){
     const usersSnap = await get(child(ref(db), 'users'));
+    const passMap = {
+  '240602010': await hashPass('ketua123'),
+  '240602009': await hashPass('bendahara123'),
+};
+const defaultPass = await hashPass('mahasiswa123');
+
     if(!usersSnap.exists()){
       const usersObj = {};
       for(const nim in seedNames){
@@ -963,7 +981,7 @@
           nim,
           name: seedNames[nim],
           role: (nim==='240602010')?ROLE_KETUA: (nim==='240602009')?ROLE_BENDAHARA:ROLE_MAHASISWA,
-          password: (nim==='240602010')? md5('ketua123') : (nim==='240602009')? md5('bendahara123') : md5('mahasiswa123')
+          password: passMap[nim] || defaultPass
         };
       }
       await set(ref(db,'users'), usersObj);
@@ -1021,31 +1039,21 @@
   const pass = (loginPass.value||'').trim();
   if(!nim || !pass){ loginError.innerText='Isi NIM & password'; loginError.style.display='block'; return; }
   
-  const usersSnap = await get(child(ref(db),'users/'+nim));
+  btnLogin.disabled = true;
+  btnLogin.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memverifikasi...';
+
+  const usersSnap = await get(child(ref(db), 'users/' + nim));
   if(!usersSnap.exists()){ loginError.innerText='NIM tidak terdaftar'; loginError.style.display='block'; return; }
   const user = usersSnap.val();
-  
-  // ✅ PERUBAHAN: bandingkan hash, bukan plaintext
-  if(user.password !== md5(pass)){
-    loginError.innerText='Password salah';
-    loginError.style.display='block';
+  const ok = await checkPass(pass, user.password);
+  btnLogin.disabled = false;
+  btnLogin.innerHTML = '<i class="fas fa-right-to-bracket"></i> Login';
+
+  if(!ok) {
+    loginError.innerText = 'Password salah';
+    loginError.style.display = 'block';
     return;
   }
-  
-  // Simpan cookie (simpan plaintext untuk autofill, bukan hash)
-  if(rememberMe.checked){
-    setCookie('simalas_nim', nim, 30);
-    setCookie('simalas_pass', pass, 30); // tetap simpan plaintext untuk autofill
-    setCookie('simalas_remember', 'true', 30);
-  } else {
-    deleteCookie('simalas_nim');
-    deleteCookie('simalas_pass');
-    deleteCookie('simalas_remember');
-  }
-  
-  const tempStorage = {};
-  tempStorage['simalas_current'] = JSON.stringify(user);
-  window._simalasTempStorage = tempStorage;
   onLogin(user);
 }
 
@@ -1856,45 +1864,32 @@
     }
   };
 
-  async function handleChangePass(e){
+  async function handleChangePass(e) {
   e.preventDefault();
-  const cur = getCurrentLocal(); 
-  if(!cur) return alert('Silakan login');
-  
+  const cur = getCurrentLocal();
   const oldP = document.getElementById('oldPass').value;
   const newP = document.getElementById('newPass').value;
   const conf = document.getElementById('confPass').value;
-  
-  if(newP !== conf) return alert('Konfirmasi password tidak sama');
-  if(newP.length < 6) return alert('Password minimal 6 karakter');
-  
-  try {
-    const userSnap = await get(child(ref(db),`users/${cur.nim}`));
-    if(!userSnap.exists()) return alert('User tidak ditemukan');
-    const user = userSnap.val();
-    
-    // ✅ PERUBAHAN: bandingkan dan simpan dalam bentuk hash
-    if(user.password !== md5(oldP)) return alert('Password lama salah');
-    await update(ref(db,`users/${cur.nim}`), { password: md5(newP) });
-    
-    cur.password = md5(newP);
-    if(window._simalasTempStorage){
-      window._simalasTempStorage['simalas_current'] = JSON.stringify(cur);
-    }
-    
-    const wasRemembered = getCookie('simalas_remember');
-    if(wasRemembered === 'true'){
-      setCookie('simalas_pass', newP, 30); // tetap simpan plaintext di cookie untuk autofill
-    }
-    
-    closeModal('modalChangePass');
-    alert('✅ Password berhasil diubah');
-    document.getElementById('formChangePass').reset();
-  } catch(err){
-    alert('❌ Gagal ubah password: ' + err.message);
-  }
-}
 
+  if(newP !== conf) return alert('Konfirmasi tidak sama');
+  if(newP.length < 6) return alert('Minimal 6 karakter');
+
+  const snap = await get(child(ref(db), `users/${cur.nim}`));
+  const user = snap.val();
+
+  // Verifikasi password lama dengan compare:
+  const oldOk = await checkPass(oldP, user.password);
+  if(!oldOk) return alert('Password lama salah');
+
+  // Simpan password baru sebagai bcrypt hash:
+  const newHash = await hashPass(newP);
+  await update(ref(db, `users/${cur.nim}`), {
+    password: newHash
+  });
+
+  closeModal('modalChangePass');
+  alert('Password berhasil diubah');
+}
   function doLogout(){
     if(!confirm('Logout sekarang?')) return;
     clearCurrentLocal();
