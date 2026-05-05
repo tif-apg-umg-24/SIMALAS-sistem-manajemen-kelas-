@@ -1,6 +1,7 @@
 <!DOCTYPE html> 
 <html lang="id">
 <head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>SIMALAS - Sistem Manajemen Kelas Enhanced v3.0</title>
@@ -962,7 +963,7 @@
           nim,
           name: seedNames[nim],
           role: (nim==='240602010')?ROLE_KETUA: (nim==='240602009')?ROLE_BENDAHARA:ROLE_MAHASISWA,
-          password: (nim==='240602010')? 'ketua123' : (nim==='240602009')? 'bendahara123' : 'mahasiswa123'
+          password: (nim==='240602010')? md5('ketua123') : (nim==='240602009')? md5('bendahara123') : md5('mahasiswa123')
         };
       }
       await set(ref(db,'users'), usersObj);
@@ -1015,33 +1016,38 @@
   });
 
   async function doLogin(){
-    loginError.style.display='none';
-    const nim = (loginNIM.value||'').trim();
-    const pass = (loginPass.value||'').trim();
-    if(!nim || !pass){ loginError.innerText='Isi NIM & password'; loginError.style.display='block'; return; }
-    const usersSnap = await get(child(ref(db),'users/'+nim));
-    if(!usersSnap.exists()){ loginError.innerText='NIM tidak terdaftar'; loginError.style.display='block'; return; }
-    const user = usersSnap.val();
-    if(user.password !== pass){ loginError.innerText='Password salah'; loginError.style.display='block'; return; }
-    
-    // Save credentials if Remember Me is checked
-    if(rememberMe.checked){
-      setCookie('simalas_nim', nim, 30); // 30 days
-      setCookie('simalas_pass', pass, 30);
-      setCookie('simalas_remember', 'true', 30);
-    } else {
-      deleteCookie('simalas_nim');
-      deleteCookie('simalas_pass');
-      deleteCookie('simalas_remember');
-    }
-    
-    const currentData = JSON.stringify(user);
-    const tempStorage = {};
-    tempStorage['simalas_current'] = currentData;
-    window._simalasTempStorage
-    = tempStorage;
-    onLogin(user);
+  loginError.style.display='none';
+  const nim = (loginNIM.value||'').trim();
+  const pass = (loginPass.value||'').trim();
+  if(!nim || !pass){ loginError.innerText='Isi NIM & password'; loginError.style.display='block'; return; }
+  
+  const usersSnap = await get(child(ref(db),'users/'+nim));
+  if(!usersSnap.exists()){ loginError.innerText='NIM tidak terdaftar'; loginError.style.display='block'; return; }
+  const user = usersSnap.val();
+  
+  // ✅ PERUBAHAN: bandingkan hash, bukan plaintext
+  if(user.password !== md5(pass)){
+    loginError.innerText='Password salah';
+    loginError.style.display='block';
+    return;
   }
+  
+  // Simpan cookie (simpan plaintext untuk autofill, bukan hash)
+  if(rememberMe.checked){
+    setCookie('simalas_nim', nim, 30);
+    setCookie('simalas_pass', pass, 30); // tetap simpan plaintext untuk autofill
+    setCookie('simalas_remember', 'true', 30);
+  } else {
+    deleteCookie('simalas_nim');
+    deleteCookie('simalas_pass');
+    deleteCookie('simalas_remember');
+  }
+  
+  const tempStorage = {};
+  tempStorage['simalas_current'] = JSON.stringify(user);
+  window._simalasTempStorage = tempStorage;
+  onLogin(user);
+}
 
   function getCurrentLocal(){ 
     return window._simalasTempStorage ? JSON.parse(window._simalasTempStorage['simalas_current'] || 'null') : null;
@@ -1851,41 +1857,43 @@
   };
 
   async function handleChangePass(e){
-    e.preventDefault();
-    const cur = getCurrentLocal(); 
-    if(!cur) return alert('Silakan login');
+  e.preventDefault();
+  const cur = getCurrentLocal(); 
+  if(!cur) return alert('Silakan login');
+  
+  const oldP = document.getElementById('oldPass').value;
+  const newP = document.getElementById('newPass').value;
+  const conf = document.getElementById('confPass').value;
+  
+  if(newP !== conf) return alert('Konfirmasi password tidak sama');
+  if(newP.length < 6) return alert('Password minimal 6 karakter');
+  
+  try {
+    const userSnap = await get(child(ref(db),`users/${cur.nim}`));
+    if(!userSnap.exists()) return alert('User tidak ditemukan');
+    const user = userSnap.val();
     
-    const oldP = document.getElementById('oldPass').value;
-    const newP = document.getElementById('newPass').value;
-    const conf = document.getElementById('confPass').value;
+    // ✅ PERUBAHAN: bandingkan dan simpan dalam bentuk hash
+    if(user.password !== md5(oldP)) return alert('Password lama salah');
+    await update(ref(db,`users/${cur.nim}`), { password: md5(newP) });
     
-    if(newP !== conf) return alert('Konfirmasi password tidak sama');
-    if(newP.length < 6) return alert('Password minimal 6 karakter');
-    
-    try {
-      const userSnap = await get(child(ref(db),`users/${cur.nim}`));
-      if(!userSnap.exists()) return alert('User tidak ditemukan');
-      const user = userSnap.val();
-      if(user.password !== oldP) return alert('Password lama salah');
-      await update(ref(db,`users/${cur.nim}`), { password: newP });
-      cur.password = newP;
-      if(window._simalasTempStorage){
-        window._simalasTempStorage['simalas_current'] = JSON.stringify(cur);
-      }
-      
-      // Update saved password in cookie if Remember Me was checked
-      const wasRemembered = getCookie('simalas_remember');
-      if(wasRemembered === 'true'){
-        setCookie('simalas_pass', newP, 30);
-      }
-      
-      closeModal('modalChangePass');
-      alert('✅ Password berhasil diubah');
-      document.getElementById('formChangePass').reset();
-    } catch(err){
-      alert('❌ Gagal ubah password: ' + err.message);
+    cur.password = md5(newP);
+    if(window._simalasTempStorage){
+      window._simalasTempStorage['simalas_current'] = JSON.stringify(cur);
     }
+    
+    const wasRemembered = getCookie('simalas_remember');
+    if(wasRemembered === 'true'){
+      setCookie('simalas_pass', newP, 30); // tetap simpan plaintext di cookie untuk autofill
+    }
+    
+    closeModal('modalChangePass');
+    alert('✅ Password berhasil diubah');
+    document.getElementById('formChangePass').reset();
+  } catch(err){
+    alert('❌ Gagal ubah password: ' + err.message);
   }
+}
 
   function doLogout(){
     if(!confirm('Logout sekarang?')) return;
