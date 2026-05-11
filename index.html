@@ -602,7 +602,36 @@
   </div>
 </div>
 
-
+<div id="modalRegister" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-user-plus"></i> Daftar Akun Baru</h3>
+      <button class="close-modal" onclick="closeModal('modalRegister')"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="formRegister" onsubmit="handleRegister(event)">
+      <div class="form-group">
+        <label class="form-label">NIM <span style="color:var(--danger)">*</span></label>
+        <input class="form-control" id="regNIM" required placeholder="contoh: 240602099">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nama Lengkap <span style="color:var(--danger)">*</span></label>
+        <input class="form-control" id="regName" required placeholder="Nama sesuai KTM">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password <span style="color:var(--danger)">*</span></label>
+        <input type="password" class="form-control" id="regPass" required placeholder="Minimal 6 karakter">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Konfirmasi Password <span style="color:var(--danger)">*</span></label>
+        <input type="password" class="form-control" id="regConfPass" required placeholder="Ketik ulang password">
+      </div>
+      <div id="regError" class="error-text"></div>
+      <button type="submit" class="btn btn-primary" style="width:100%" id="btnRegisterSubmit">
+        <i class="fas fa-user-plus"></i> Daftar
+      </button>
+    </form>
+  </div>
+</div>
 
 <!-- MODALS -->
 <div id="modalUpload" class="modal">
@@ -905,7 +934,7 @@
   const loginOverlay = document.getElementById('loginOverlay');
   const uploadOverlay = document.getElementById('uploadOverlay');
   const btnLogin = document.getElementById('btnLogin');
-  const btnReset = document.getElementById('btnReset');
+  const btnReset = document.getElementById('btnReset') || { addEventListener: () => {} };
   const loginError = document.getElementById('loginError');
   const loginNIM = document.getElementById('loginNIM');
   const loginPass = document.getElementById('loginPass');
@@ -1023,20 +1052,22 @@ const defaultPass = await hashPass('mahasiswa123');
   ensureDefaults().catch(e=>console.error('Init error',e));
 
   btnLogin.addEventListener('click', doLogin);
-  btnReset.addEventListener('click', async ()=> {
-    if(!confirm('Reset semua data?')) return;
-    await set(ref(db,'users'), null);
-    await set(ref(db,'materials'), null);
-    await set(ref(db,'tasks'), null);
-    await set(ref(db,'events'), null);
-    await set(ref(db,'taskStatus'), null);
-    await set(ref(db,'kas'), null);
-    await ensureDefaults();
-    location.reload();
-  });
+
+const _btnReset = document.getElementById('btnReset');
+if(_btnReset) _btnReset.addEventListener('click', async ()=> {
+  if(!confirm('Reset semua data?')) return;
+  await set(ref(db,'users'), null);
+  await set(ref(db,'materials'), null);
+  await set(ref(db,'tasks'), null);
+  await set(ref(db,'events'), null);
+  await set(ref(db,'taskStatus'), null);
+  await set(ref(db,'kas'), null);
+  await ensureDefaults();
+  location.reload();
+});
 
   document.getElementById('btnRegister').addEventListener('click', () => openModal('modalRegister'));
-  
+
 async function handleRegister(e) {
   e.preventDefault();
   const nim    = (document.getElementById('regNIM').value || '').trim();
