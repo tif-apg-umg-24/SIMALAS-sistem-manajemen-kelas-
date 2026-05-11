@@ -2054,8 +2054,10 @@ async function handleRegister(e) {
   
   function openModal(id){ 
   const modal = document.getElementById(id);
-  if(modal) modal.classList.add('active');
+  if(!modal) return;
+  modal.classList.add('active');
   if(id === 'modalRegister'){
+    modal.style.zIndex = '10000';
     const overlay = document.getElementById('loginOverlay');
     if(overlay) overlay.style.pointerEvents = 'none';
   }
@@ -2063,7 +2065,8 @@ async function handleRegister(e) {
 
 function closeModal(id){ 
   const modal = document.getElementById(id);
-  if(modal) modal.classList.remove('active');
+  if(!modal) return;
+  modal.classList.remove('active');
   if(id === 'modalRegister'){
     const overlay = document.getElementById('loginOverlay');
     if(overlay) overlay.style.pointerEvents = '';
