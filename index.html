@@ -7,6 +7,12 @@
   <title>SIMALAS - Sistem Manajemen Kelas Enhanced v3.0</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
+
+#modalRegister.active ~ #loginOverlay,
+body:has(#modalRegister.active) #loginOverlay {
+  pointer-events: none;
+}
+
     *{box-sizing:border-box;margin:0;padding:0}
     :root{
       --primary:#6366f1;--primary-dark:#4f46e5;--secondary:#10b981;
@@ -399,7 +405,7 @@
   </div>
 </div>
 
-<div id="loginOverlay">
+<div id="loginOverlay" id="loginOverlay">
   <div class="login-card">
     <div class="login-header">
       <h1><i class="fas fa-graduation-cap"></i> SIMALAS</h1>
@@ -2047,9 +2053,22 @@ async function handleRegister(e) {
   }
   
   function openModal(id){ 
-    const modal = document.getElementById(id);
-    if(modal) modal.classList.add('active'); 
+  const modal = document.getElementById(id);
+  if(modal) modal.classList.add('active');
+  if(id === 'modalRegister'){
+    const overlay = document.getElementById('loginOverlay');
+    if(overlay) overlay.style.pointerEvents = 'none';
   }
+}
+
+function closeModal(id){ 
+  const modal = document.getElementById(id);
+  if(modal) modal.classList.remove('active');
+  if(id === 'modalRegister'){
+    const overlay = document.getElementById('loginOverlay');
+    if(overlay) overlay.style.pointerEvents = '';
+  }
+}
   
   function closeModal(id){ 
     const modal = document.getElementById(id);
