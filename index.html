@@ -435,7 +435,7 @@
           <i class="fas fa-right-to-bracket"></i>
           <span>Login</span>
         </button>
-        <button id="btnRegister" class="btn btn-light" onclick="openModal('modalRegister')" style="flex:0 0 auto">
+        <button id="btnRegister" class="btn btn-light" style="flex:0 0 auto">
   <i class="fas fa-user-plus"></i> Daftar
 </button>
       </div>
@@ -1036,7 +1036,7 @@ const defaultPass = await hashPass('mahasiswa123');
   });
 
   document.getElementById('btnRegister').addEventListener('click', () => openModal('modalRegister'));
-
+  
 async function handleRegister(e) {
   e.preventDefault();
   const nim    = (document.getElementById('regNIM').value || '').trim();
